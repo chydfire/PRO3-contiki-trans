@@ -1,0 +1,218 @@
+C51 COMPILER V9.54   A7139_SPI                                                             03/07/2017 19:19:57 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE A7139_SPI
+OBJECT MODULE PLACED IN .\output\A7139_spi.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\A7139\A7139_spi.c LARGE OPTIMIZE(0,SPEED) BROWSE MODC2 INCDI
+                    -R(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\cl
+                    -ock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\A7139_spi.lst) TABS(2)
+                    - OBJECT(.\output\A7139_spi.obj)
+
+line level    source
+
+   1          
+   2          #include "A7139_spi.h"
+   3          
+   4          
+   5          //A7139引脚配置：
+   6          //SCS->P2.0, SCK->P1.7, GPIO2->P2.2/INT1, GPIO1->P2.1/INT0, SDIO->P1.6, CKO->P1.5(GPIO2就是IRQ引脚) 
+   7           
+   8           //a7139中断管脚配置:GPIO2->P2.2/INT1
+   9          void init_irq_a7139()
+  10          {
+  11   1        P2M  &= 0xFB;   //P2.2 input mode
+  12   1      //  P2UR |= 0x04;   //enable P2.2 pull-up resister
+  13   1        P2UR &= 0xFB;   //disable P2.2 pull-up resister
+  14   1      
+  15   1        PEDGE = 0x08;   //INT1 trigger is falling edge
+  16   1        IEN0 |= 0x84;   //enable INT1;enable all interrupt 
+  17   1      }
+  18          //SCS->P2.0, SCK->P1.7, GPIO2->P2.2/INT1, GPIO1->P2.1/INT0, SDIO->P1.6, CKO->P1.5
+  19          void init_spi_a7139(void)
+  20          {
+  21   1      
+  22   1        //GPIO2->P2.2/INT1  pull-up input
+  23   1        P2M  &= 0xFB;       //P2.2 input mode
+  24   1        P2UR |= 0x04;       //enable P2.2 pull-up resister
+  25   1        //GPIO1->P2.1/INT0  pull-up input
+  26   1        P2M  &= 0xFD;       //P2.1 input mode
+  27   1        P2UR |= 0x02;       //enable P2.1 pull-up resister
+  28   1        
+  29   1        //SCS->P2.0, SCK->P1.7 push-pull output
+  30   1        P2M  |= 0x01;       //P2.0 output mode
+  31   1        P2UR &= 0xFE;       //disable P2.0 pull-up resister
+  32   1      
+  33   1        
+  34   1        P1M  |= 0x80;       //P1.7 output mode
+  35   1        P1UR &= 0x7F;       //disable P1.7 pull-up resister
+  36   1        P1OC &= 0x7E;       //disable open drain
+  37   1        
+  38   1        //SDIO->P1.6  push-pull by default(two-way)
+  39   1        P1M  |= 0x40;       //P1.6 output mode
+  40   1        P1UR &= 0xBF;       //disable P1.6 pull-up resister
+  41   1      
+  42   1        
+  43   1        //CKO->P1.5 floating input
+  44   1        P1M  &= 0xDF;       //P1.5 input mode
+  45   1        P1UR &= 0xDF;       //disable P1.6 pull-up resister
+  46   1        
+  47   1        init_irq_a7139();
+  48   1        
+  49   1        cs_high_a7139();
+  50   1      }
+  51          
+  52          //a7139 chip select
+C51 COMPILER V9.54   A7139_SPI                                                             03/07/2017 19:19:57 PAGE 2   
+
+  53          void cs_low_a7139(void)
+  54          {
+  55   1        P20 = 0;
+  56   1      }
+  57          void cs_high_a7139(void)
+  58          {
+  59   1        P20 = 1;
+  60   1      }
+  61          
+  62          
+  63          //SCS->P2.0, SCK->P1.7, GPIO2->P2.2/INT1, GPIO1->P2.1/INT0, SDIO->P1.6, CKO->P1.5(GPIO2就是IRQ引脚) 
+  64          void SIO_Mode(u8 mod)
+  65          {
+  66   1        if(mod == INPUT)
+  67   1        {
+  68   2          P1M  &= 0xBF;       //SIO pull-up input or floating input
+  69   2          P1UR |= 0x40;       //enable P1.6 pull-up resister
+  70   2      //    P1UR &= 0xBF; //disable P1.6 pull-up resister
+  71   2        }
+  72   1        else
+  73   1        {
+  74   2          //SIO push-pull output
+  75   2          P1M  |= 0x40;       //P1.6 output mode
+  76   2          P1UR &= 0xBF;       //disable P1.6 pull-up resister
+  77   2          P1OC &= 0xBE;       //disable open drain
+  78   2        }
+  79   1      }
+  80          
+  81          void SPIx_WriteByte(u8 dat)
+  82          {
+  83   1          u8 i;
+  84   1          for(i=0; i<8; i++)
+  85   1          {
+  86   2              if(dat & 0x80)
+  87   2                  SIO_OUT(HIGH);
+  88   2              else
+  89   2                  SIO_OUT(LOW);
+  90   2              delay_us(1);
+  91   2              SCK_OUT(HIGH);
+  92   2              delay_us(1);
+  93   2              SCK_OUT(LOW);
+  94   2              dat<<=1;
+  95   2          }
+  96   1      }
+  97          
+  98          void SPIx_WriteWord(u16 wrd)
+  99          {
+ 100   1          u8 i;
+ 101   1          for(i=0; i<16; i++)
+ 102   1          {
+ 103   2              if(wrd & 0x8000)
+ 104   2                  SIO_OUT(HIGH);
+ 105   2              else
+ 106   2                  SIO_OUT(LOW);
+ 107   2              SCK_OUT(HIGH);
+ 108   2              delay_us(1);
+ 109   2              SCK_OUT(LOW);
+ 110   2              wrd<<=1;
+ 111   2          }
+ 112   1      }
+ 113          
+ 114          u8 SPIx_ReadByte(void)
+C51 COMPILER V9.54   A7139_SPI                                                             03/07/2017 19:19:57 PAGE 3   
+
+ 115          {
+ 116   1        u8 i,tmp=0;
+ 117   1        SIO_Mode(INPUT);
+ 118   1        for(i=0; i<8; i++)
+ 119   1        {
+ 120   2              if(SIO_IN())
+ 121   2                  tmp = (tmp << 1) | 0x01;
+ 122   2              else
+ 123   2                  tmp = tmp << 1;
+ 124   2              SCK_OUT(HIGH);
+ 125   2              delay_us(1);
+ 126   2              SCK_OUT(LOW);
+ 127   2           }
+ 128   1        SIO_Mode(OUTPUT);
+ 129   1        return tmp;
+ 130   1      }
+ 131          
+ 132          u16 SPIx_ReadWord(void)
+ 133          {
+ 134   1        u8  i;
+ 135   1        u16 tmp=0;
+ 136   1        SIO_Mode(INPUT);  
+ 137   1        for(i=0; i<16; i++)
+ 138   1        {
+ 139   2              if(SIO_IN())
+ 140   2                  tmp = (tmp << 1) | 0x01;
+ 141   2              else
+ 142   2                  tmp = tmp << 1;
+ 143   2              SCK_OUT(HIGH);
+ 144   2              delay_us(1);
+ 145   2              SCK_OUT(LOW);
+ 146   2          }
+ 147   1        SIO_Mode(OUTPUT);    
+ 148   1          return tmp;
+ 149   1      }
+ 150          //delay us*n
+ 151          void delay_us(unsigned char n)
+ 152          {
+ 153   1         unsigned int i;
+ 154   1          // init value
+ 155   1          i = 0;
+ 156   1          for (i=0; i<n; i++)
+ 157   1          {
+ 158   2            _nop_();    _nop_();
+ 159   2          }
+ 160   1      }
+ 161          //delay 1ms*n
+ 162          void delay_ms(unsigned int n)
+ 163          {
+ 164   1          unsigned int i, j;
+ 165   1      
+ 166   1          // init value
+ 167   1          i = 0;
+ 168   1          j = 0;
+ 169   1      
+ 170   1          for (i=0; i<n; i++) {
+ 171   2              for (j=0; j<220; j++) {
+ 172   3                  _nop_();    _nop_();
+ 173   3                  _nop_();    _nop_();
+ 174   3                  _nop_();    _nop_();
+ 175   3                  _nop_();    _nop_();
+ 176   3              }
+C51 COMPILER V9.54   A7139_SPI                                                             03/07/2017 19:19:57 PAGE 4   
+
+ 177   2          }
+ 178   1      }
+ 179          
+ 180          
+ 181          
+ 182          
+ 183          
+ 184          
+ 185          
+ 186          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    641    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     20    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

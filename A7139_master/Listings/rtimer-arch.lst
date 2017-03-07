@@ -1,0 +1,160 @@
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/07/2017 19:19:57 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE RTIMER_ARCH
+OBJECT MODULE PLACED IN .\output\rtimer-arch.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\rtimer\rtimer-arch.c LARGE OPTIMIZE(0,SPEED) BROWSE MODC2 IN
+                    -CDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER
+                    -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\rtimer-arch.lst) TA
+                    -BS(2) OBJECT(.\output\rtimer-arch.obj)
+
+line level    source
+
+   1          /*
+   2           * Copyright (c) 2010, Loughborough University - Computer Science
+   3           * All rights reserved.
+   4           *
+   5           * Redistribution and use in source and binary forms, with or without
+   6           * modification, are permitted provided that the following conditions
+   7           * are met:
+   8           * 1. Redistributions of source code must retain the above copyright
+   9           *    notice, this list of conditions and the following disclaimer.
+  10           * 2. Redistributions in binary form must reproduce the above copyright
+  11           *    notice, this list of conditions and the following disclaimer in the
+  12           *    documentation and/or other materials provided with the distribution.
+  13           * 3. Neither the name of the Institute nor the names of its contributors
+  14           *    may be used to endorse or promote products derived from this software
+  15           *    without specific prior written permission.
+  16           *
+  17           * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+  18           * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  19           * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  20           * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+  21           * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  22           * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  23           * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  24           * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  25           * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  26           * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  27           * SUCH DAMAGE.
+  28           *
+  29           * This file is part of the Contiki operating system.
+  30           *
+  31           */
+  32          
+  33          /**
+  34           * \file
+  35           *         Hardware-dependent functions used to support the
+  36           *         contiki rtimer module.
+  37           *
+  38           *         clock_init() has set our tick speed prescaler already, so we
+  39           *         are ticking with 500 kHz freq.
+  40           *
+  41           *         Contiki typedefs rtimer_clock_t as unsigned short (16bit)
+  42           *         It thus makes sense to use the 16bit timer (Timer 1)
+  43           *
+  44           *         This file contains an ISR and must reside in the HOME bank
+  45           *
+  46           * \author
+  47           *         George Oikonomou - <oikonomou@users.sourceforge.net>
+  48           */
+  49          
+  50          #include "rtimer.h"
+  51          #include <SN8F5708.h>
+  52          
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/07/2017 19:19:57 PAGE 2   
+
+  53          
+  54          #define T2ClkFcpu (1 << 0) //T2 clock from Fcpu
+  55          #define T2ClkPin (2 << 0) //T2 clock from T2 pin
+  56          #define T2ClkGate (3 << 0) //T2 clock from Fcpu with T2 pin gating
+  57          #define T2Fcpu12 (0 << 7) //T2 clock = Fcpu/12
+  58          #define T2Fcpu24 (1 << 7) //T2 clock = Fcpu/24
+  59          #define T2RLMode0 (2 << 3) //T2 reload mode0 = auto-reload
+  60          #define T2RLMode1 (3 << 3) //T2 reload mode1 = T2RL falling edge trigger
+  61          #define ComMode0 (0 << 2) //Compare mode = directly method
+  62          #define ComMode1 (1 << 2) //Compare mode = indirectly output method
+  63          #define T2COM0EdNE (0 << 6) //T2COM0 interrupt edge = no equle CRC
+  64          #define T2COM0EdE (1 << 6) //T2COM0 interrupt edge = equle CRC
+  65          #define T2COM0En (2 << 0) //T2COM0 compare funcion enable
+  66          #define T2COM1En (2 << 2) //T2COM1 compare funcion enable
+  67          #define T2COM2En (2 << 4) //T2COM2 compare funcion enable
+  68          #define T2COM3En (2 << 6) //T2COM3 compare funcion enable
+  69          
+  70          
+  71          #define RT_MODE_COMPARE() do { CCEN |= T2COM1En; } while(0)
+  72          #define RT_MODE_CAPTURE() do { CCEN &= ~T2COM1En; } while(0)
+  73          
+  74          unsigned char xdata rtimer_cycle=0;
+  75          unsigned char xdata rtimer_cycle_cnt=0;
+  76          /*---------------------------------------------------------------------------*/
+  77          void
+  78          rtimer_arch_init(void)
+  79          { 
+  80   1        // T2_Initial
+  81   1        //P11 = 1;//GPIO P1.0 input mode
+  82   1        TH2 = 0x00;
+  83   1        TL2 = 0x00;
+  84   1        CRCH = 0x00;
+  85   1        CRCL = 0x00;
+  86   1        CCH1 = 0xC0;
+  87   1        CCL1 = 0x00;
+  88   1        // T2 clock from Fcpu/24 with T2 pin gating
+  89   1        // Reload mode1 = T2RL falling edge trigger
+  90   1        // Compare mode = directly method
+  91   1        // T2COM0 interrupt trigger = equle CRC
+  92   1        T2CON |= T2ClkFcpu | T2Fcpu24 | T2RLMode0 | ComMode1;
+  93   1        // Compare function T2COM0/1/2/3 enable
+  94   1        CCEN |= T2COM1En;
+  95   1        
+  96   1      }
+  97          /*---------------------------------------------------------------------------*/
+  98          void
+  99          rtimer_arch_schedule(rtimer_clock_t t)
+ 100          {
+ 101   1        /* Switch to capture mode before writing T1CC1x and
+ 102   1         * set the compare mode values so we can get an interrupt after t */
+ 103   1        CCL1 = (unsigned char)t;
+ 104   1        CCH1 = (unsigned char)(t >> 8);
+ 105   1        RT_MODE_COMPARE();
+ 106   1      
+ 107   1        /* Turn on compare mode interrupt */
+ 108   1        //TF2C1 = 0;
+ 109   1        ET2C1 = 1;
+ 110   1        
+ 111   1      }
+ 112          /*---------------------------------------------------------------------------*/
+ 113          /* avoid referencing bits, we don't call code which use them */
+ 114          #pragma save
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/07/2017 19:19:57 PAGE 3   
+
+ 115          //#if CC_CONF_OPTIMIZE_STACK_SIZE
+ 116          //#pragma exclude bits
+ 117          //#endif
+ 118          void
+ 119          rtimer_isr(void) interrupt ISRCom1
+ 120          {
+ 121   1        ET2C1 = 0; /* Ignore Timer 1 Interrupts */
+ 122   1        ++rtimer_cycle_cnt;
+ 123   1        if(rtimer_cycle_cnt==rtimer_cycle)
+ 124   1        {
+ 125   2          rtimer_run_next();
+ 126   2          rtimer_cycle_cnt=0;
+ 127   2        }
+ 128   1        ET2C1 = 1; /* Acknowledge Timer 1 Interrupts */
+ 129   1      }
+ 130          #pragma restore
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    166    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

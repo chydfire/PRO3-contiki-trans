@@ -1,0 +1,1 @@
+"source\STARTUP\STARTUP.A51" INCDIR(.\source\STARTUP;.\source\CONFIG) SET (LARGE) DEBUG PRINT(.\Listings\STARTUP.lst) OBJECT(.\output\STARTUP.obj) EP

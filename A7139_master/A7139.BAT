@@ -1,0 +1,21 @@
+SET C51INC=C:\Keil_v5\C51\Inc;C:\Keil_v5\C51\Inc\SONiX
+SET C51LIB=C:\Keil_v5\C51\Lib
+SET CPU_TYPE=SN8F5708
+SET CPU_VENDOR=SONiX
+SET UV2_TARGET=A7139
+SET CPU_XTAL=0x01E84800
+"C:\Keil_v5\C51\BIN\A51.EXE" @".\output\STARTUP._ia"
+"C:\Keil_v5\C51\BIN\A51.EXE" @".\output\OPTION~1._IA"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\main.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\A7139.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\A7139_~1.__I"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\A7139_~2.__I"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\uart.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\led.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\cmd.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\clock.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\rtimer.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\RTIMER~1.__I"
+"C:\Keil_v5\C51\BIN\BL51.EXE" @".\output\gpio.lnp"
+"C:\Keil_v5\C51\BIN\OH51.EXE" ".\output\gpio" 
+HexConvert.exe SN8F5708 "D:\Contiki Transport\SN8F5708PRO1\TX\A7139_master\output\gpio.HEX"

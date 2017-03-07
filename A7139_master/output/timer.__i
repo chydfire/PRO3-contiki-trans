@@ -1,0 +1,1 @@
+"source\USER\timer\timer.c" OPTIMIZE (8,SPEED) BROWSE MODC2 INCDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\source\USER\8051def) DEBUG OBJECTEXTEND PRINT(.\Listings\timer.lst) TABS (2) OBJECT(.\output\timer.obj)

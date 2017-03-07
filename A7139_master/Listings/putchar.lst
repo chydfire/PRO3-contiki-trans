@@ -1,0 +1,36 @@
+C51 COMPILER V9.54   PUTCHAR                                                               03/07/2017 15:55:58 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE PUTCHAR
+OBJECT MODULE PLACED IN .\output\putchar.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\putchar\putchar.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 INCDI
+                    -R(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\cl
+                    -ock;.\source\USER\inc;.\source\USER\rtimer) DEBUG OBJECTEXTEND PRINT(.\Listings\putchar.lst) TABS(2) OBJECT(.\output\put
+                    -char.obj)
+
+line level    source
+
+   1          
+   2          #include "uart.h"
+   3          /*---------------------------------------------------------------------------*/
+   4          
+   5          char
+   6          putchar(char c)
+   7          {
+   8   1        uart_writeb((char) c);
+   9   1        return c;
+  10   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     14    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

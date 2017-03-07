@@ -1,0 +1,16 @@
+".\output\STARTUP.obj",
+".\output\OPTIONS_SN8F5708.obj",
+".\output\main.obj",
+".\output\A7139.obj",
+".\output\A7139_CONFIG.obj",
+".\output\A7139_spi.obj",
+".\output\uart.obj",
+".\output\led.obj",
+".\output\cmd.obj",
+".\output\clock.obj",
+".\output\rtimer.obj",
+".\output\rtimer-arch.obj" 
+TO ".\output\gpio" 
+PRINT(".\Listings\gpio.m51") RAMSIZE(256) 
+CODE( 0X0000-0X3FF5 )
+XDATA( 0X0000-0X03FF )

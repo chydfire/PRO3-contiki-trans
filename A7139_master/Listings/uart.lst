@@ -1,0 +1,221 @@
+C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\output\uart.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\uart\uart.c LARGE OPTIMIZE(0,SPEED) BROWSE MODC2 INCDIR(.\so
+                    -urce\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\
+                    -source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\uart.lst) TABS(2) OBJECT(.\o
+                    -utput\uart.obj)
+
+line level    source
+
+   1          
+   2          #include "uart.h"
+   3          
+   4          xdata uint8_t RxBuf[UART_BUF_LEN_MAX] = {0};
+   5          xdata uint8_t RxData = 0;
+   6          xdata uint8_t UartRxFlag = 0;
+   7          xdata uint8_t recv_head=0;
+   8          xdata uint8_t recv_tail=0;
+   9          
+  10          //uart init
+  11          void uart_init(void)
+  12          {
+  13   1        P05  = 1;     //UTX pin set high
+  14   1        P0M |= 0x20;  //UTX is output,URX is input
+  15   1        
+  16   1        SM0 = 0;
+  17   1        SM1 = 1;      //mode 1:8-bit uart
+  18   1        REN0 = 1;     //uart reception enable
+  19   1        
+  20   1        switch (Baudrate) 
+  21   1        {
+  22   2              case BR_9600:
+  23   2                  S0RELH = 0x03;
+  24   2                  S0RELL = 0x98;      // for baudrate gen
+  25   2      
+  26   2                  PCON |= 0x80;       // SMOD = 1;    
+  27   2                                      // baudrate : 9615
+  28   2                  BD = 1;
+  29   2                  break;
+  30   2              case BR_19200:
+  31   2                  S0RELH = 0x03;
+  32   2                  S0RELL = 0xCC;      // for baudrate gen
+  33   2      
+  34   2                  PCON |= 0x80;       // SMOD = 1;    
+  35   2                                      // baudrate : 19230
+  36   2                  BD = 1;
+  37   2                  break;
+  38   2              case BR_38400:
+  39   2                  S0RELH = 0x03;
+  40   2                  S0RELL = 0xE6;      // for baudrate gen
+  41   2      
+  42   2                  PCON |= 0x80;       // SMOD = 1;    
+  43   2                                      // baudrate : 38461
+  44   2                  BD = 1;
+  45   2                  break;
+  46   2              case BR_57600:
+  47   2                  S0RELH = 0x03;
+  48   2                  S0RELL = 0xEF;      // for baudrate gen
+  49   2      
+  50   2                  PCON |= 0x80;       // SMOD = 1;    
+  51   2                                      // baudrate : 58823
+  52   2                  BD = 1;
+C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 2   
+
+  53   2                  break;
+  54   2              case BR_115200:
+  55   2                  S0RELH = 0x03;
+  56   2                  S0RELL = 0xF7;      // for baudrate gen
+  57   2      
+  58   2                  PCON |= 0x80;       // SMOD = 1;    
+  59   2                                      // baudrate : 111111
+  60   2                  BD = 1;
+  61   2                  break;
+  62   2              default:
+  63   2                  // br_9600
+  64   2                  S0RELH = 0x03;
+  65   2                  S0RELL = 0x98;      // for baudrate gen
+  66   2      
+  67   2                  PCON |= 0x80;       // SMOD = 1;    
+  68   2                                      // baudrate : 9615
+  69   2                  BD = 1;
+  70   2                  break;
+  71   2        }
+  72   1        
+  73   1        ES0 = 1;   //enable uart interrupt
+  74   1        EAL = 1;   //enable golbal interrupt
+  75   1      }
+  76          
+  77          //uart interrupt function
+  78          /*************************************************************************************
+  79          uart接收命令帧格式（下行）
+  80          起始字节 + 同步字节 + 节点地址 + 数据区（2个字节） + CRC校验码高字节 + CRC校验码低字节
+  81          0xaa        0xbb      (1 -100)
+  82          **************************************************************************************/
+  83          void SYSUartInterrupt(void) interrupt ISRUart  // Vector @  0x23
+  84          {
+  85   1          //while(!TI0);
+  86   1          if(RI0)
+  87   1          {
+  88   2              register uint8_t next = 0;
+  89   2            
+  90   2              RI0 = 0;                // Clear receiver flag
+  91   2              RB80 = 0;
+  92   2      
+  93   2              next = (recv_head + 1) % UART_BUF_LEN_MAX;
+  94   2              if( next != recv_tail )
+  95   2              {
+  96   3                  RxBuf[recv_head] = S0BUF;
+  97   3                  recv_head = next;
+  98   3              }
+  99   2          }
+ 100   1      }
+ 101          
+ 102          //UART send one byte function
+ 103          void uart_send_byte(unsigned char txData)
+ 104          {
+ 105   1          S0BUF = txData;
+ 106   1      
+ 107   1          while(!TI0);       // wait for end of transmit
+ 108   1      
+ 109   1          if (TI0) 
+ 110   1          {
+ 111   2              TI0 = 0;
+ 112   2          }
+ 113   1      }
+ 114          //UART send string function
+C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 3   
+
+ 115          void uart_send_string(unsigned char *s,unsigned char n)
+ 116          {
+ 117   1         unsigned char idata i = 0;
+ 118   1         for(i=0;i<n;i++)
+ 119   1         {
+ 120   2          uart_send_byte(s[i]);
+ 121   2         }
+ 122   1      }
+ 123          //发送一个字符串
+ 124          void Prints(unsigned char *pd)
+ 125          {
+ 126   1        while((*pd) != '\0')
+ 127   1        {
+ 128   2          uart_send_byte(*pd);
+ 129   2          pd++;
+ 130   2        }
+ 131   1      }
+ 132          
+ 133          unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n)
+ 134          {
+ 135   1       unsigned char idata i,j;
+ 136   1       unsigned int  idata CRC_Code = 0xFFFF;
+ 137   1       for(i=0;i<n;i++)
+ 138   1       {
+ 139   2           CRC_Code ^= s[i];
+ 140   2           for(j=0;j<8;j++)
+ 141   2           {
+ 142   3              if(CRC_Code&1)
+ 143   3              {
+ 144   4               CRC_Code >>= 1;
+ 145   4               CRC_Code ^= 0xA001;
+ 146   4              }
+ 147   3              else
+ 148   3              {
+ 149   4               CRC_Code >>= 1;
+ 150   4              }
+ 151   3           }
+ 152   2       }
+ 153   1       return CRC_Code;
+ 154   1      }
+ 155          
+ 156          
+ 157          void
+ 158          uart_writeb(char byte)
+ 159          {
+ 160   1          S0BUF = byte;
+ 161   1      
+ 162   1          while(!TI0);       // wait for end of transmit
+ 163   1      
+ 164   1          if (TI0) 
+ 165   1          {
+ 166   2              TI0 = 0;
+ 167   2          }
+ 168   1      }
+ 169          
+ 170          char
+ 171          putchar(char c)
+ 172          {
+ 173   1        //while(RI0);
+ 174   1        uart_writeb((char) c);
+ 175   1        return c;
+ 176   1      }
+C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 4   
+
+ 177          
+ 178          char getchar(void)
+ 179          {
+ 180   1        register uint8_t p = 0;
+ 181   1        
+ 182   1        if(recv_tail != recv_head)
+ 183   1        {
+ 184   2            p = RxBuf[recv_tail];
+ 185   2            recv_tail = (recv_tail + 1) % UART_BUF_LEN_MAX;
+ 186   2        }
+ 187   1        
+ 188   1        return (char)p;
+ 189   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    706    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     53    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =      5    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
