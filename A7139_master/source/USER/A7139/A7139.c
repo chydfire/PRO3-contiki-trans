@@ -1,4 +1,7 @@
 #include "A7139.h"
+#include "clock.h"
+
+
 #define open_led1   P26 = 0
 #define close_led1  P26 = 1
 #define toggle_led1 P26 = ~P26
@@ -6,30 +9,30 @@
 #define close_led2  P27 = 1
 #define toggle_led2 P27 = ~P27
 
-static void A7139_WriteReg(Uint8 regAddr, Uint16 regVal)
+void A7139_WriteReg(Uint8 regAddr, Uint16 regVal)
 {
     SCS_OUT(LOW);
     regAddr |= CMD_Reg_W;
     SPIx_WriteByte(regAddr);
-    delay_us(1);
+    clock_delay_us(1);
     SPIx_WriteWord(regVal);
     SCS_OUT(HIGH);
 }
 
-static Uint16 A7139_ReadReg(Uint8 regAddr)
+Uint16 A7139_ReadReg(Uint8 regAddr)
 {
 //    Uint16 regVal;
-	    Uint16 idata regVal;
+	  Uint16 regVal = 0;
     SCS_OUT(LOW);
     regAddr |= CMD_Reg_R;
     SPIx_WriteByte(regAddr);
-    delay_us(1);
+    clock_delay_us(1);
     regVal=SPIx_ReadWord();
     SCS_OUT(HIGH);
     return regVal;
 }
 
-static void A7139_WritePageA(Uint8 address, Uint16 dataWord)
+void A7139_WritePageA(Uint8 address, Uint16 dataWord)
 {
 //    Uint16 tmp;
 	  Uint16 idata tmp;
@@ -39,7 +42,7 @@ static void A7139_WritePageA(Uint8 address, Uint16 dataWord)
     A7139_WriteReg(PAGEA_REG, dataWord);
 }
 
-static void A7139_WritePageB(Uint8 address, Uint16 dataWord)
+void A7139_WritePageB(Uint8 address, Uint16 dataWord)
 {
 //    Uint16 tmp;
 	  Uint16 idata tmp;
@@ -49,7 +52,7 @@ static void A7139_WritePageB(Uint8 address, Uint16 dataWord)
     A7139_WriteReg(PAGEB_REG, dataWord);
 }
 
-static Uint16 A7139_ReadPageA(Uint8 address)
+Uint16 A7139_ReadPageA(Uint8 address)
 {
 //    Uint16 tmp;
 	  Uint16 idata tmp;
@@ -60,7 +63,7 @@ static Uint16 A7139_ReadPageA(Uint8 address)
     return tmp;
 }
 
-static void A7139_Config(void)
+void A7139_Config(void)
 {
 //	Uint8 i;
 		Uint8 idata i;
@@ -74,7 +77,7 @@ static void A7139_Config(void)
         A7139_WritePageB(i, A7139Config_PageB[i]);
 }
 
-static Uint8 A7139_Cal(void)
+Uint8 A7139_Cal(void)
 {
 //	Uint8  fbcf;	//IF Filter
 //	Uint8  vbcf;	//VCO Current
@@ -202,7 +205,7 @@ static Uint8 A7139_Cal(void)
 	return 0;
 }
 
-static void A7139_SetFreq(float rfFreq)
+void A7139_SetFreq(float rfFreq)
 {
 //	 float  divFreq = rfFreq / 12.800f;  
 //	 Uint8  intFreq = (Uint8)(divFreq); //integer part
@@ -236,7 +239,7 @@ static void A7139_SetFreq(float rfFreq)
 	 A7139_WritePageB(IF2_PAGEB,0x0000);	
 }
 
-static Uint8 A7139_RCOSC_Cal(void)
+Uint8 A7139_RCOSC_Cal(void)
 {
 //	  Uint8  retry = 0xFF;
 //	  Uint16 calbrtVal,t_retry=0xFFFF;
@@ -272,13 +275,13 @@ Uint8 A7139_Init(float rfFreq)
 	SCK_OUT(LOW);
      A7139_StrobeCmd(CMD_RF_RST);	  //reset A7139 chip
 //	Delay_ms(10);
-	delay_ms(10);
+	clock_delay_ms(10);
 	A7139_Config();		  //config A7139 chip
-//	delay_ms(10);			  //for crystal stabilized
-//	A7139_SetCID(0x3475C58C);  //set CID code
-//	delay_ms(1);
-//	A7139_SetFreq(rfFreq);	  //set Freq
-//	delay_ms(10);
+	delay_ms(10);			  //for crystal stabilized
+	A7139_SetCID(0x3475C58C);  //set CID code
+	delay_ms(1);
+	A7139_SetFreq(rfFreq);	  //set Freq
+	delay_ms(10);
 	return A7139_Cal();		  //IF and VCO calibration
 }
 
@@ -310,7 +313,7 @@ Uint8 A7139_SetDataRate(Uint8 datRate)
 {
 		//enter stand by mode
 	A7139_StrobeCmd(CMD_STBY);
-	delay_ms(20);
+	clock_delay_ms(20);
 			//set xs[0:0] = 0 to disable XTAL
 	A7139_WriteReg(CRYSTAL_REG,A7139Config[CRYSTAL_REG] & 0xFFFE );
 	switch(datRate)
@@ -370,12 +373,12 @@ Uint8 A7139_SetDataRate(Uint8 datRate)
 		default:
 						// set xs[0:0] = 1 to open XTAL
 			A7139_WriteReg(CRYSTAL_REG,A7139Config[CRYSTAL_REG] | 0x0001 );
-			delay_ms(20);
+			clock_delay_ms(20);
 			return ERR_PARAM;
 	}
 					// set xs[0:0] = 1 to enable XTAL
 	A7139_WriteReg(CRYSTAL_REG,A7139Config[CRYSTAL_REG] | 0x0001 );
-	delay_ms(20);
+	clock_delay_ms(20);
 	return 0;
 }
 
@@ -417,7 +420,7 @@ Uint8 A7139_SetCIDLen(Uint8 len)
 void A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize)
 {
 	A7139_StrobeCmd(CMD_TFR);	
-     delay_ms(1);
+     clock_delay_ms(1);
 	SCS_OUT(LOW);
 	SPIx_WriteByte(CMD_FIFO_W);
 	while(bufSize--)
@@ -428,7 +431,7 @@ void A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize)
 void A7139_ReadFIFO(Uint8 *buf,Uint8 bufSize)
 {
 	A7139_StrobeCmd(CMD_RFR);
-	delay_ms(1);
+	clock_delay_ms(1);
 	SCS_OUT(LOW);
 	SPIx_WriteByte(CMD_FIFO_R);
 	while(bufSize--)
@@ -446,7 +449,7 @@ Uint8 A7139_IsBatteryLow(Uint8 low2_x)
 			//BVT[3:1] BDS[0:0]
 	pagVal= A7139Config[PM_PAGEA] & 0xFFF0;
 	A7139_WritePageA(PM_PAGEA,pagVal | (low2_x << 1) | 0x01);
-	delay_us(10); //delay 5us at least 
+	clock_delay_us(10); //delay 5us at least 
 			//read VBD[7:7]
 	return !((A7139_ReadPageA(WOR1_PAGEA) & 0x0080) >> 7);
 }

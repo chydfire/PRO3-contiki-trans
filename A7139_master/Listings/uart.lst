@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 1   
+C51 COMPILER V9.54   UART                                                                  03/08/2017 15:17:00 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE UART
@@ -62,7 +62,7 @@ line level    source
   50   2                  PCON |= 0x80;       // SMOD = 1;    
   51   2                                      // baudrate : 58823
   52   2                  BD = 1;
-C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 2   
+C51 COMPILER V9.54   UART                                                                  03/08/2017 15:17:00 PAGE 2   
 
   53   2                  break;
   54   2              case BR_115200:
@@ -96,121 +96,135 @@ line level    source
   82          **************************************************************************************/
   83          void SYSUartInterrupt(void) interrupt ISRUart  // Vector @  0x23
   84          {
-  85   1          //while(!TI0);
-  86   1          if(RI0)
-  87   1          {
-  88   2              register uint8_t next = 0;
-  89   2            
-  90   2              RI0 = 0;                // Clear receiver flag
-  91   2              RB80 = 0;
-  92   2      
-  93   2              next = (recv_head + 1) % UART_BUF_LEN_MAX;
-  94   2              if( next != recv_tail )
-  95   2              {
-  96   3                  RxBuf[recv_head] = S0BUF;
-  97   3                  recv_head = next;
-  98   3              }
-  99   2          }
- 100   1      }
- 101          
- 102          //UART send one byte function
- 103          void uart_send_byte(unsigned char txData)
- 104          {
- 105   1          S0BUF = txData;
- 106   1      
- 107   1          while(!TI0);       // wait for end of transmit
- 108   1      
- 109   1          if (TI0) 
- 110   1          {
- 111   2              TI0 = 0;
- 112   2          }
- 113   1      }
- 114          //UART send string function
-C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 3   
+  85   1          if(RI0)
+  86   1          {
+  87   2              register uint8_t next = 0;
+  88   2            
+  89   2              RI0 = 0;                // Clear receiver flag
+  90   2              RB80 = 0;
+  91   2      
+  92   2              next = (recv_head + 1) % UART_BUF_LEN_MAX;
+  93   2              if( next != recv_tail )
+  94   2              {
+  95   3                  RxBuf[recv_head] = S0BUF;
+  96   3                  recv_head = next;
+  97   3              }
+  98   2          }
+  99   1      }
+ 100          
+ 101          //UART send one byte function
+ 102          void uart_send_byte(unsigned char txData)
+ 103          {
+ 104   1          S0BUF = txData;
+ 105   1      
+ 106   1          while(!TI0);       // wait for end of transmit
+ 107   1      
+ 108   1          if (TI0) 
+ 109   1          {
+ 110   2              TI0 = 0;
+ 111   2          }
+ 112   1      }
+ 113          //UART send string function
+ 114          void uart_send_string(unsigned char *s,unsigned char n)
+C51 COMPILER V9.54   UART                                                                  03/08/2017 15:17:00 PAGE 3   
 
- 115          void uart_send_string(unsigned char *s,unsigned char n)
- 116          {
- 117   1         unsigned char idata i = 0;
- 118   1         for(i=0;i<n;i++)
- 119   1         {
- 120   2          uart_send_byte(s[i]);
- 121   2         }
- 122   1      }
- 123          //发送一个字符串
- 124          void Prints(unsigned char *pd)
- 125          {
- 126   1        while((*pd) != '\0')
- 127   1        {
- 128   2          uart_send_byte(*pd);
- 129   2          pd++;
- 130   2        }
- 131   1      }
- 132          
- 133          unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n)
- 134          {
- 135   1       unsigned char idata i,j;
- 136   1       unsigned int  idata CRC_Code = 0xFFFF;
- 137   1       for(i=0;i<n;i++)
- 138   1       {
- 139   2           CRC_Code ^= s[i];
- 140   2           for(j=0;j<8;j++)
- 141   2           {
- 142   3              if(CRC_Code&1)
- 143   3              {
- 144   4               CRC_Code >>= 1;
- 145   4               CRC_Code ^= 0xA001;
- 146   4              }
- 147   3              else
- 148   3              {
- 149   4               CRC_Code >>= 1;
- 150   4              }
- 151   3           }
- 152   2       }
- 153   1       return CRC_Code;
- 154   1      }
+ 115          {
+ 116   1         unsigned char idata i = 0;
+ 117   1         for(i=0;i<n;i++)
+ 118   1         {
+ 119   2          uart_send_byte(s[i]);
+ 120   2         }
+ 121   1      }
+ 122          //发送一个字符串
+ 123          void Prints(unsigned char *pd)
+ 124          {
+ 125   1        while((*pd) != '\0')
+ 126   1        {
+ 127   2          uart_send_byte(*pd);
+ 128   2          pd++;
+ 129   2        }
+ 130   1      }
+ 131          
+ 132          unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n)
+ 133          {
+ 134   1       unsigned char idata i,j;
+ 135   1       unsigned int  idata CRC_Code = 0xFFFF;
+ 136   1       for(i=0;i<n;i++)
+ 137   1       {
+ 138   2           CRC_Code ^= s[i];
+ 139   2           for(j=0;j<8;j++)
+ 140   2           {
+ 141   3              if(CRC_Code&1)
+ 142   3              {
+ 143   4               CRC_Code >>= 1;
+ 144   4               CRC_Code ^= 0xA001;
+ 145   4              }
+ 146   3              else
+ 147   3              {
+ 148   4               CRC_Code >>= 1;
+ 149   4              }
+ 150   3           }
+ 151   2       }
+ 152   1       return CRC_Code;
+ 153   1      }
+ 154          
  155          
- 156          
- 157          void
- 158          uart_writeb(char byte)
- 159          {
- 160   1          S0BUF = byte;
- 161   1      
- 162   1          while(!TI0);       // wait for end of transmit
- 163   1      
- 164   1          if (TI0) 
- 165   1          {
- 166   2              TI0 = 0;
- 167   2          }
- 168   1      }
- 169          
- 170          char
- 171          putchar(char c)
- 172          {
- 173   1        //while(RI0);
- 174   1        uart_writeb((char) c);
- 175   1        return c;
- 176   1      }
-C51 COMPILER V9.54   UART                                                                  03/07/2017 19:19:57 PAGE 4   
+ 156          void
+ 157          uart_writeb(char byte)
+ 158          {
+ 159   1          S0BUF = byte;
+ 160   1      
+ 161   1          while(!TI0);       // wait for end of transmit
+ 162   1      
+ 163   1          if (TI0) 
+ 164   1          {
+ 165   2              TI0 = 0;
+ 166   2          }
+ 167   1      }
+ 168          
+ 169          char
+ 170          putchar(char c)
+ 171          {
+ 172   1        uart_writeb((char) c);
+ 173   1        return c;
+ 174   1      }
+ 175          
+ 176          char getchar(void)
+C51 COMPILER V9.54   UART                                                                  03/08/2017 15:17:00 PAGE 4   
 
- 177          
- 178          char getchar(void)
- 179          {
- 180   1        register uint8_t p = 0;
- 181   1        
- 182   1        if(recv_tail != recv_head)
- 183   1        {
- 184   2            p = RxBuf[recv_tail];
- 185   2            recv_tail = (recv_tail + 1) % UART_BUF_LEN_MAX;
- 186   2        }
- 187   1        
- 188   1        return (char)p;
- 189   1      }
+ 177          {
+ 178   1        register uint8_t p = 0;
+ 179   1        
+ 180   1        if(recv_tail != recv_head)
+ 181   1        {
+ 182   2            p = RxBuf[recv_tail];
+ 183   2            recv_tail = (recv_tail + 1) % UART_BUF_LEN_MAX;
+ 184   2        }
+ 185   1        
+ 186   1        return (char)p;
+ 187   1      }
+ 188          
+ 189          uint8_t avalible(void)
+ 190          {
+ 191   1        uint8_t cnt = 0;
+ 192   1        
+ 193   1        if(recv_tail < recv_head)
+ 194   1        {
+ 195   2           cnt = recv_head - recv_tail;
+ 196   2        }
+ 197   1        else if(recv_tail > recv_head)
+ 198   1        {
+ 199   2           cnt = UART_BUF_LEN_MAX - recv_tail + recv_head;
+ 200   2        }
+ 201   1        
+ 202   1        return cnt;
+ 203   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    706    ----
+   CODE SIZE        =    791    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     53    ----
+   XDATA SIZE       =     54    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =      5    ----

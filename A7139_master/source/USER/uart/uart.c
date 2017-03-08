@@ -82,7 +82,6 @@ uart接收命令帧格式（下行）
 **************************************************************************************/
 void SYSUartInterrupt(void) interrupt ISRUart  // Vector @  0x23
 {
-	  //while(!TI0);
     if(RI0)
 		{
 			  register uint8_t next = 0;
@@ -170,7 +169,6 @@ uart_writeb(char byte)
 char
 putchar(char c)
 {
-	//while(RI0);
   uart_writeb((char) c);
   return c;
 }
@@ -186,4 +184,20 @@ char getchar(void)
 	}
 	
 	return (char)p;
+}
+
+uint8_t avalible(void)
+{
+	uint8_t cnt = 0;
+	
+	if(recv_tail < recv_head)
+	{
+		 cnt = recv_head - recv_tail;
+	}
+	else if(recv_tail > recv_head)
+	{
+		 cnt = UART_BUF_LEN_MAX - recv_tail + recv_head;
+	}
+	
+	return cnt;
 }

@@ -69,53 +69,56 @@ code CMD_TYPE cmd[] = {
 	
 #define CMD_COUNT   (sizeof (cmd) / sizeof (cmd[0]))
 	
-char in_line[CMD_BUF_LEN_MAX] = { 0 };
+xdata char in_line[CMD_BUF_LEN_MAX] = { 0 };
 
 int getline(char * lp, uint32_t n)
 {
     uint32_t cnt = 0;
     char c;
 	
-    do 
+	  if( avalible() > 0 )
 		{
-   	    //clock_delay(CMD_GET_LINE_DELAY);
-        c = getchar();
-        switch(c) 
-				{
-						 case CMD_FLAG_ZERO:
-						 case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
-						 case CMD_FLAG_CNTL_S:
-						 break;
-						
-						 case CMD_FLAG_BACKSPACE:
-						 case CMD_FLAG_DEL:
-								if (cnt == 0) {
-									 break;
-								}
-								cnt--;                         /* decrement count                */
-								lp--;                          /* and line pointer               */
-								putchar (0x08);                /* echo backspace                 */
-								putchar (' ');
-								putchar (0x08);
-								break;
-						 case CMD_FLAG_ESC:
-								*lp = 0;                       /* ESC - stop editing line        */
-								return (FALSE);
-						 case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
-								*lp = c;
-								lp++;                          /* increment line pointer         */
-								cnt++;                         /* and count                      */
-								c = CMD_FLAG_LF;
-						 default:
-							  *lp = c;
-						    //putchar (c); 
-								putchar (*lp);             /* echo and store character       */
-						    
-								lp++;                          /* increment line pointer         */
-								cnt++;                         /* and count                      */
-								break;
-      }
-   } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
+			do 
+			{
+					//clock_delay(CMD_GET_LINE_DELAY);
+					c = getchar();
+					switch(c) 
+					{
+							 case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
+							 case CMD_FLAG_CNTL_S:
+							 break;
+							
+							 case CMD_FLAG_BACKSPACE:
+							 case CMD_FLAG_DEL:
+									if (cnt == 0) {
+										 break;
+									}
+									cnt--;                         /* decrement count                */
+									lp--;                          /* and line pointer               */
+									putchar (0x08);                /* echo backspace                 */
+									putchar (' ');
+									putchar (0x08);
+									break;
+							 case CMD_FLAG_ESC:
+									*lp = 0;                       /* ESC - stop editing line        */
+									return (FALSE);
+							 case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
+									*lp = c;
+									lp++;                          /* increment line pointer         */
+									cnt++;                         /* and count                      */
+									c = CMD_FLAG_LF;
+							 default:
+									*lp = c;
+									//putchar (c); 
+									putchar (*lp);             /* echo and store character       */
+									
+									lp++;                          /* increment line pointer         */
+									cnt++;                         /* and count                      */
+									break;
+				}
+		 } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
+	 }
+		
    *lp = 0;    
                             /* mark end of string             */
    return (TRUE);
@@ -181,57 +184,48 @@ char *getentry(char *cp, char **ppNext)
    return (cp);
 }
 
-void cmdline(void)
+int cmd_master(void)
 {
+	 int ret = TRUE;
 	 char *sp=NULL,*cp=NULL,*next=NULL;
    int8_t i;
 	 unsigned char u = 0;
-	char c;
    //printf (intro);                            /* display example info        */
    //printf (help);
    //cmd[0].func(NULL);	//?????recv??
-   while (TRUE) {
       //printf (PROMPT);                     /* display prompt              */
       /* get command line input      */
-		 #if 0
-		  do
-			{
-				c = getchar();
-				if( 0 != c )
-				{
-					putchar( c );
-				}
-			}while( 0 != c );
-			#endif
-			#if 1
-      if (getline (in_line, CMD_BUF_LEN_MAX) == FALSE) {
-				printf("get line failed\n");
-         continue;
-      }
-//			for(u = 0; u < 32; u++){
-//			putchar(in_line[u]);
-//			}
-//			putchar("\n");
+	  ret = getline (in_line, CMD_BUF_LEN_MAX);
+		if( FALSE == ret ) 
+		{
+			printf("get line failed\n");
+		}
+		else
+		{
 			printf("getline %s\n", in_line);
-			#endif
-			#if 1
-      sp = getentry (&in_line[0], &next);
-      if (*sp == 0) {
-         continue;
-      }
-      for (cp = sp; *cp && (*cp != ' '); cp++) {
-         *cp = toupper (*cp);                 /* command to upper-case       */
-      }
-      for (i = 0; i < CMD_COUNT; i++) {
-         if (strcmp (sp, (const char *)&cmd[i].name)) {
-            continue;
-         }
-         cmd[i].func (next);                  /* execute command function    */
-         break;
-      }
-      if (i == CMD_COUNT) {
-        printf ("\ncmd error\n");
-      }
-			#endif
-   }
+			sp = getentry (&in_line[0], &next);
+			if (*sp != 0) 
+			{
+				 for (cp = sp; *cp && (*cp != ' '); cp++) {
+				 *cp = toupper (*cp);                 /* command to upper-case       */
+				}
+				 
+				for (i = 0; i < CMD_COUNT; i++) 
+				{
+					 if (0 == strcmp (sp, (const char *)&cmd[i].name)) 
+					 {
+							cmd[i].func (next);                  /* execute command function    */
+					    break;
+					 }
+					 
+				}
+				
+				if (i == CMD_COUNT) {
+					ret = FALSE;
+					printf ("\ncmd error\n");
+				}
+			}
+		}
+		
+		return ret;
 }

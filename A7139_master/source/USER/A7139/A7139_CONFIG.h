@@ -14,7 +14,7 @@
 #endif
 
 #ifndef Uint16
-#define Uint16 unsigned int
+#define Uint16 unsigned short
 #endif
 
 #ifndef Uint32

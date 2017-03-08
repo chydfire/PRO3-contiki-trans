@@ -27,7 +27,7 @@ typedef struct cmd_type
 extern int getline(char * lp, uint32_t n);
 extern int strtoul(char *s);
 extern char *getentry(char *pSrc, char **ppNext);
-extern void cmdline(void);
+extern int cmd_master(void);
 
 /*---------------------------------------------------------------------------*/
 

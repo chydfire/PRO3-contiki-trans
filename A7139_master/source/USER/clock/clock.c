@@ -14,6 +14,7 @@ static volatile unsigned long timer_value = 0;
 static volatile  __data clock_time_t count = 0; /* Uptime in ticks */
 static volatile  __data clock_time_t seconds = 0; /* Uptime in secs */
 
+uint8_t xdata per_second_flag = 0;
 
 #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
 #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
@@ -57,6 +58,7 @@ void clock_isr(void) interrupt ISRTimer1 //0x1B
 	++count;
 	if((count % CLOCK_CONF_SECOND) == 0) {
     ++seconds;
+		per_second_flag = 1;
 		toggle_led_blue;
   }
 	TH1 = 0xAE;
@@ -69,12 +71,31 @@ void clock_isr(void) interrupt ISRTimer1 //0x1B
  * One delay is about 0.6 us, so this function delays for len * 0.6 us
  */
 void
-clock_delay(unsigned int len)
+clock_delay_us(uint16_t dt)
 {
-  unsigned int i;
-  for(i = 0; i< len; i++) {
+  uint16_t i;
+  for(i = 0; i< dt; i++) {
     ASM(nop);
   }
+}
+
+void
+clock_delay_ms(uint8_t dt)
+{
+  uint8_t i, j;
+
+    // init value
+    i = 0;
+    j = 0;
+
+    for (i=0; i<dt; i++) {
+        for (j=0; j<220; j++) {
+            ASM(nop);    ASM(nop);
+            ASM(nop);    ASM(nop);
+            ASM(nop);    ASM(nop);
+            ASM(nop);    ASM(nop);
+        }
+    }
 }
 /*---------------------------------------------------------------------------*/
 /**

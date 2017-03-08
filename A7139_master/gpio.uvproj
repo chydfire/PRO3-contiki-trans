@@ -418,6 +418,11 @@
               <FileType>1</FileType>
               <FilePath>.\source\USER\cmd\cmd.c</FilePath>
             </File>
+            <File>
+              <FileName>A7139_comm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\USER\A7139\A7139_comm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

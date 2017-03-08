@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   CMD                                                                   03/07/2017 19:19:57 PAGE 1   
+C51 COMPILER V9.54   CMD                                                                   03/08/2017 15:17:00 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE CMD
@@ -62,7 +62,7 @@ line level    source
   50          
   51          code CMD_TYPE cmd[] = {
   52          //  "RECV", cmd_recv,
-C51 COMPILER V9.54   CMD                                                                   03/07/2017 19:19:57 PAGE 2   
+C51 COMPILER V9.54   CMD                                                                   03/08/2017 15:17:00 PAGE 2   
 
   53          //  "XRAM", cmd_xram,
   54          //  "REG",  cmd_reg,
@@ -83,190 +83,183 @@ line level    source
   69            
   70          #define CMD_COUNT   (sizeof (cmd) / sizeof (cmd[0]))
   71            
-  72          char in_line[CMD_BUF_LEN_MAX] = { 0 };
+  72          xdata char in_line[CMD_BUF_LEN_MAX] = { 0 };
   73          
   74          int getline(char * lp, uint32_t n)
   75          {
   76   1          uint32_t cnt = 0;
   77   1          char c;
   78   1        
-  79   1          do 
+  79   1          if( avalible() > 0 )
   80   1          {
-  81   2              //clock_delay(CMD_GET_LINE_DELAY);
-  82   2              c = getchar();
-  83   2              switch(c) 
-  84   2              {
-  85   3                   case CMD_FLAG_ZERO:
-  86   3                   case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
-  87   3                   case CMD_FLAG_CNTL_S:
-  88   3                   break;
-  89   3                  
-  90   3                   case CMD_FLAG_BACKSPACE:
-  91   3                   case CMD_FLAG_DEL:
-  92   3                      if (cnt == 0) {
-  93   4                         break;
-  94   4                      }
-  95   3                      cnt--;                         /* decrement count                */
-  96   3                      lp--;                          /* and line pointer               */
-  97   3                      putchar (0x08);                /* echo backspace                 */
-  98   3                      putchar (' ');
-  99   3                      putchar (0x08);
- 100   3                      break;
- 101   3                   case CMD_FLAG_ESC:
- 102   3                      *lp = 0;                       /* ESC - stop editing line        */
- 103   3                      return (FALSE);
- 104   3                   case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
- 105   3                      *lp = c;
- 106   3                      lp++;                          /* increment line pointer         */
- 107   3                      cnt++;                         /* and count                      */
- 108   3                      c = CMD_FLAG_LF;
- 109   3                   default:
- 110   3                      *lp = c;
- 111   3                      //putchar (c); 
- 112   3                      putchar (*lp);             /* echo and store character       */
- 113   3                      
- 114   3                      lp++;                          /* increment line pointer         */
-C51 COMPILER V9.54   CMD                                                                   03/07/2017 19:19:57 PAGE 3   
+  81   2            do 
+  82   2            {
+  83   3                //clock_delay(CMD_GET_LINE_DELAY);
+  84   3                c = getchar();
+  85   3                switch(c) 
+  86   3                {
+  87   4                     case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
+  88   4                     case CMD_FLAG_CNTL_S:
+  89   4                     break;
+  90   4                    
+  91   4                     case CMD_FLAG_BACKSPACE:
+  92   4                     case CMD_FLAG_DEL:
+  93   4                        if (cnt == 0) {
+  94   5                           break;
+  95   5                        }
+  96   4                        cnt--;                         /* decrement count                */
+  97   4                        lp--;                          /* and line pointer               */
+  98   4                        putchar (0x08);                /* echo backspace                 */
+  99   4                        putchar (' ');
+ 100   4                        putchar (0x08);
+ 101   4                        break;
+ 102   4                     case CMD_FLAG_ESC:
+ 103   4                        *lp = 0;                       /* ESC - stop editing line        */
+ 104   4                        return (FALSE);
+ 105   4                     case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
+ 106   4                        *lp = c;
+ 107   4                        lp++;                          /* increment line pointer         */
+ 108   4                        cnt++;                         /* and count                      */
+ 109   4                        c = CMD_FLAG_LF;
+ 110   4                     default:
+ 111   4                        *lp = c;
+ 112   4                        //putchar (c); 
+ 113   4                        putchar (*lp);             /* echo and store character       */
+ 114   4                        
+C51 COMPILER V9.54   CMD                                                                   03/08/2017 15:17:00 PAGE 3   
 
- 115   3                      cnt++;                         /* and count                      */
- 116   3                      break;
- 117   3            }
- 118   2         } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
- 119   1         *lp = 0;    
- 120   1                                  /* mark end of string             */
- 121   1         return (TRUE);
- 122   1      }
- 123          
- 124          int strtoul(char *s)
- 125          {
- 126   1        int ret;
- 127   1        int radix = 10;
- 128   1        int negative = 0;
- 129   1        int i;
- 130   1        ret = 0;
- 131   1        if(*s == '-') 
- 132   1        {
- 133   2          negative = 1;
- 134   2          s++;
- 135   2        }
- 136   1        else if(*s == '0')
- 137   1        {
- 138   2          s++;
- 139   2          if(*s == 'x')
- 140   2          {
- 141   3            s++;
- 142   3            radix = 0x10;
- 143   3          }
- 144   2        }
- 145   1        while (*s) {
- 146   2          if (*s >= '0' && *s <= '9')
- 147   2            i = *s - '0';
- 148   2          else if (*s >= 'a' && *s <= 'f')
- 149   2            i = *s - 'a' + 0xa;
- 150   2          else if (*s >= 'A' && *s <= 'F')
- 151   2            i = *s - 'A' + 0xa;
- 152   2          else
- 153   2            break;
- 154   2          if(i >= radix) break;
- 155   2          ret = (ret * radix) + i;
- 156   2          s++;
- 157   2        }
- 158   1        return negative?(-ret):ret;
- 159   1      }
- 160          
- 161          char *getentry(char *cp, char **ppNext)
- 162          {
- 163   1        char *sp, lfn = 0, sep_ch = ' ';
- 164   1         if (cp == NULL) {                          /* skip NULL pointers          */
- 165   2            *ppNext = cp;
- 166   2            return (cp);
- 167   2         }
- 168   1         for ( ; *cp == ' ' || *cp == '\"'; cp++) { /* skip blanks and starting  " */
- 169   2            if (*cp == '\"') { sep_ch = '\"'; lfn = 1; }
- 170   2            *cp = 0;
- 171   2         }
- 172   1         for (sp = cp; *sp != CMD_FLAG_CR && *sp != CMD_FLAG_LF; sp++) {
- 173   2            if ( lfn && *sp == '\"') break;
- 174   2            if (!lfn && *sp == ' ' ) break;
- 175   2         }
- 176   1         for ( ; *sp == sep_ch || *sp == CMD_FLAG_CR || *sp == CMD_FLAG_LF; sp++) {
-C51 COMPILER V9.54   CMD                                                                   03/07/2017 19:19:57 PAGE 4   
+ 115   4                        lp++;                          /* increment line pointer         */
+ 116   4                        cnt++;                         /* and count                      */
+ 117   4                        break;
+ 118   4              }
+ 119   3           } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
+ 120   2         }
+ 121   1          
+ 122   1         *lp = 0;    
+ 123   1                                  /* mark end of string             */
+ 124   1         return (TRUE);
+ 125   1      }
+ 126          
+ 127          int strtoul(char *s)
+ 128          {
+ 129   1        int ret;
+ 130   1        int radix = 10;
+ 131   1        int negative = 0;
+ 132   1        int i;
+ 133   1        ret = 0;
+ 134   1        if(*s == '-') 
+ 135   1        {
+ 136   2          negative = 1;
+ 137   2          s++;
+ 138   2        }
+ 139   1        else if(*s == '0')
+ 140   1        {
+ 141   2          s++;
+ 142   2          if(*s == 'x')
+ 143   2          {
+ 144   3            s++;
+ 145   3            radix = 0x10;
+ 146   3          }
+ 147   2        }
+ 148   1        while (*s) {
+ 149   2          if (*s >= '0' && *s <= '9')
+ 150   2            i = *s - '0';
+ 151   2          else if (*s >= 'a' && *s <= 'f')
+ 152   2            i = *s - 'a' + 0xa;
+ 153   2          else if (*s >= 'A' && *s <= 'F')
+ 154   2            i = *s - 'A' + 0xa;
+ 155   2          else
+ 156   2            break;
+ 157   2          if(i >= radix) break;
+ 158   2          ret = (ret * radix) + i;
+ 159   2          s++;
+ 160   2        }
+ 161   1        return negative?(-ret):ret;
+ 162   1      }
+ 163          
+ 164          char *getentry(char *cp, char **ppNext)
+ 165          {
+ 166   1        char *sp, lfn = 0, sep_ch = ' ';
+ 167   1         if (cp == NULL) {                          /* skip NULL pointers          */
+ 168   2            *ppNext = cp;
+ 169   2            return (cp);
+ 170   2         }
+ 171   1         for ( ; *cp == ' ' || *cp == '\"'; cp++) { /* skip blanks and starting  " */
+ 172   2            if (*cp == '\"') { sep_ch = '\"'; lfn = 1; }
+ 173   2            *cp = 0;
+ 174   2         }
+ 175   1         for (sp = cp; *sp != CMD_FLAG_CR && *sp != CMD_FLAG_LF; sp++) {
+ 176   2            if ( lfn && *sp == '\"') break;
+C51 COMPILER V9.54   CMD                                                                   03/08/2017 15:17:00 PAGE 4   
 
- 177   2            *sp = 0;
- 178   2            if ( lfn && *sp == sep_ch) { sp ++; break; }
- 179   2         }
- 180   1         *ppNext = (*sp) ? sp : NULL;                /* next entry                  */
- 181   1         return (cp);
- 182   1      }
- 183          
- 184          void cmdline(void)
- 185          {
- 186   1         char *sp=NULL,*cp=NULL,*next=NULL;
- 187   1         int8_t i;
- 188   1         unsigned char u = 0;
- 189   1        char c;
- 190   1         //printf (intro);                            /* display example info        */
- 191   1         //printf (help);
- 192   1         //cmd[0].func(NULL); //?????recv??
- 193   1         while (TRUE) {
- 194   2            //printf (PROMPT);                     /* display prompt              */
- 195   2            /* get command line input      */
- 196   2           #if 0
-                    do
-                    {
-                      c = getchar();
-                      if( 0 != c )
-                      {
-                        putchar( c );
-                      }
-                    }while( 0 != c );
-                    #endif
- 206   2            #if 1
- 207   2            if (getline (in_line, CMD_BUF_LEN_MAX) == FALSE) {
- 208   3              printf("get line failed\n");
- 209   3               continue;
- 210   3            }
- 211   2      //      for(u = 0; u < 32; u++){
- 212   2      //      putchar(in_line[u]);
- 213   2      //      }
- 214   2      //      putchar("\n");
- 215   2            printf("getline %s\n", in_line);
- 216   2            #endif
- 217   2            #if 1
- 218   2            sp = getentry (&in_line[0], &next);
- 219   2            if (*sp == 0) {
- 220   3               continue;
- 221   3            }
- 222   2            for (cp = sp; *cp && (*cp != ' '); cp++) {
- 223   3               *cp = toupper (*cp);                 /* command to upper-case       */
- 224   3            }
- 225   2            for (i = 0; i < CMD_COUNT; i++) {
- 226   3               if (strcmp (sp, (const char *)&cmd[i].name)) {
- 227   4                  continue;
- 228   4               }
- 229   3               cmd[i].func (next);                  /* execute command function    */
- 230   3               break;
- 231   3            }
- 232   2            if (i == CMD_COUNT) {
- 233   3              printf ("\ncmd error\n");
- 234   3            }
- 235   2            #endif
- 236   2         }
- 237   1      }
-*** WARNING C280 IN LINE 189 OF source\USER\cmd\cmd.c: 'c': unreferenced local variable
-C51 COMPILER V9.54   CMD                                                                   03/07/2017 19:19:57 PAGE 5   
-
+ 177   2            if (!lfn && *sp == ' ' ) break;
+ 178   2         }
+ 179   1         for ( ; *sp == sep_ch || *sp == CMD_FLAG_CR || *sp == CMD_FLAG_LF; sp++) {
+ 180   2            *sp = 0;
+ 181   2            if ( lfn && *sp == sep_ch) { sp ++; break; }
+ 182   2         }
+ 183   1         *ppNext = (*sp) ? sp : NULL;                /* next entry                  */
+ 184   1         return (cp);
+ 185   1      }
+ 186          
+ 187          int cmd_master(void)
+ 188          {
+ 189   1         int ret = TRUE;
+ 190   1         char *sp=NULL,*cp=NULL,*next=NULL;
+ 191   1         int8_t i;
+ 192   1         unsigned char u = 0;
+ 193   1         //printf (intro);                            /* display example info        */
+ 194   1         //printf (help);
+ 195   1         //cmd[0].func(NULL); //?????recv??
+ 196   1            //printf (PROMPT);                     /* display prompt              */
+ 197   1            /* get command line input      */
+ 198   1          ret = getline (in_line, CMD_BUF_LEN_MAX);
+ 199   1          if( FALSE == ret ) 
+ 200   1          {
+ 201   2            printf("get line failed\n");
+ 202   2          }
+ 203   1          else
+ 204   1          {
+ 205   2            printf("getline %s\n", in_line);
+ 206   2            sp = getentry (&in_line[0], &next);
+ 207   2            if (*sp != 0) 
+ 208   2            {
+ 209   3               for (cp = sp; *cp && (*cp != ' '); cp++) {
+ 210   4               *cp = toupper (*cp);                 /* command to upper-case       */
+ 211   4              }
+ 212   3               
+ 213   3              for (i = 0; i < CMD_COUNT; i++) 
+ 214   3              {
+ 215   4                 if (0 == strcmp (sp, (const char *)&cmd[i].name)) 
+ 216   4                 {
+ 217   5                    cmd[i].func (next);                  /* execute command function    */
+ 218   5                    break;
+ 219   5                 }
+ 220   4                 
+ 221   4              }
+ 222   3              
+ 223   3              if (i == CMD_COUNT) {
+ 224   4                ret = FALSE;
+ 225   4                printf ("\ncmd error\n");
+ 226   4              }
+ 227   3            }
+ 228   2          }
+ 229   1          
+ 230   1          return ret;
+ 231   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2070    ----
+   CODE SIZE        =   2114    ----
    CONSTANT SIZE    =    548    ----
-   XDATA SIZE       =     81    ----
+   XDATA SIZE       =     82    ----
    PDATA SIZE       =   ----    ----
+C51 COMPILER V9.54   CMD                                                                   03/08/2017 15:17:00 PAGE 5   
+
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

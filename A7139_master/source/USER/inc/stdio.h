@@ -26,6 +26,7 @@ All rights reserved.
 #pragma REGPARMS
 extern char _getkey (void);
 extern char getchar (void);
+extern uint8_t avalible(void);
 extern char ungetchar (char);
 extern char putchar (char);
 extern int printf   (const char *, ...);

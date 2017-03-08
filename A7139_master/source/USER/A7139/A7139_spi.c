@@ -1,5 +1,6 @@
 
 #include "A7139_spi.h"
+#include "clock.h"
 
 
 //A7139“˝Ω≈≈‰÷√£∫
@@ -87,9 +88,9 @@ void SPIx_WriteByte(u8 dat)
             SIO_OUT(HIGH);
         else
             SIO_OUT(LOW);
-        delay_us(1);
+        clock_delay_us(1);
         SCK_OUT(HIGH);
-        delay_us(1);
+        clock_delay_us(1);
         SCK_OUT(LOW);
         dat<<=1;
     }
@@ -105,7 +106,7 @@ void SPIx_WriteWord(u16 wrd)
         else
             SIO_OUT(LOW);
         SCK_OUT(HIGH);
-        delay_us(1);
+        clock_delay_us(1);
         SCK_OUT(LOW);
         wrd<<=1;
     }
@@ -122,7 +123,7 @@ u8 SPIx_ReadByte(void)
         else
             tmp = tmp << 1;
         SCK_OUT(HIGH);
-        delay_us(1);
+        clock_delay_us(1);
         SCK_OUT(LOW);
      }
 	SIO_Mode(OUTPUT);
@@ -141,7 +142,7 @@ u16 SPIx_ReadWord(void)
         else
             tmp = tmp << 1;
         SCK_OUT(HIGH);
-        delay_us(1);
+        clock_delay_us(1);
         SCK_OUT(LOW);
     }
 	SIO_Mode(OUTPUT);    

@@ -130,7 +130,8 @@ void clock_wait(clock_time_t t);
  *
  * \note Interrupts could increase the delay by a variable amount.
  */
-void clock_delay_usec(uint16_t dt);
+void clock_delay_us(uint16_t dt);
+void clock_delay_ms(uint8_t dt);
 
 /**
  * Deprecated platform-specific routines.

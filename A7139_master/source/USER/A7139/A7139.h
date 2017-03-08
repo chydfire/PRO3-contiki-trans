@@ -9,19 +9,17 @@
 //wxq add
 #include "A7139_spi.h"
 
-#define   Delay_ms(x)     	 delay_ms(x)
-#define   Delay_us(x)     	 delay_us(x)
 /********************************************/
 
-static Uint8  A7139_Cal(void);
-static void   A7139_Config(void);
-static void   A7139_WriteReg(Uint8 regAddr, Uint16 regVal);
-static Uint16 A7139_ReadReg(Uint8 regAddr);
-static Uint16 A7139_ReadPageA(Uint8 pagAddr);
-static void   A7139_WritePageA(Uint8 pagAddr, Uint16 pagVal);
-static void   A7139_WritePageB(Uint8 pagAddr, Uint16 pagVal);
-static void   A7139_SetFreq(float rfFreq);
-static Uint8  A7139_RCOSC_Cal(void);
+Uint8  A7139_Cal(void);
+void   A7139_Config(void);
+void   A7139_WriteReg(Uint8 regAddr, Uint16 regVal);
+Uint16 A7139_ReadReg(Uint8 regAddr);
+Uint16 A7139_ReadPageA(Uint8 pagAddr);
+void   A7139_WritePageA(Uint8 pagAddr, Uint16 pagVal);
+void   A7139_WritePageB(Uint8 pagAddr, Uint16 pagVal);
+void   A7139_SetFreq(float rfFreq);
+Uint8  A7139_RCOSC_Cal(void);
 
 
 void   A7139_StrobeCmd(Uint8 cmd);

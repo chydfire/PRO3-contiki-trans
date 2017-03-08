@@ -13,6 +13,7 @@ SET CPU_XTAL=0x01E84800
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\uart.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\led.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\cmd.__i"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\A7139_~3.__I"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\clock.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\rtimer.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\RTIMER~1.__I"

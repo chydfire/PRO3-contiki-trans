@@ -1,0 +1,1 @@
+"source\USER\A7139\A7139_comm.c" LARGE OPTIMIZE (0,SPEED) BROWSE MODC2 INCDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\A7139_comm.lst) TABS (2) OBJECT(.\output\A7139_comm.obj)
