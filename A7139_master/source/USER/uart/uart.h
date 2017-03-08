@@ -23,6 +23,7 @@ void Prints(unsigned char *pd);
 void uart_writeb(char byte);
 char putchar(char c);
 char getchar(void);
+uint8_t uart_getchar (void);
 
 unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n);
 

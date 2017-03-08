@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 1   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE A7139
@@ -62,7 +62,7 @@ line level    source
   50   1          tmp = ((tmp << 7) | A7139Config[CRYSTAL_REG]);
   51   1          A7139_WriteReg(CRYSTAL_REG, tmp);
   52   1          A7139_WriteReg(PAGEB_REG, dataWord);
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 2   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 2   
 
   53   1      }
   54          
@@ -126,7 +126,7 @@ line level    source
  112   1      //     }
  113   1      ////   return 0;//test
  114   1      //   /****************************************************************************************************/
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 3   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 3   
 
  115   1      
  116   1      //  A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0004);       //VCO Bank Calibration       
@@ -190,7 +190,7 @@ line level    source
  172   2           }
  173   1        //for check(VCO Current)
  174   1           tmp = A7139_ReadPageA(VCB_PAGEA);
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 4   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 4   
 
  175   1        //vcb = tmp & 0x0F;
  176   1        vccf = (tmp>>4) & 0x01;
@@ -254,7 +254,7 @@ line level    source
  234   1         orgVal = A7139Config[PLL1_REG] & 0xFF00;
  235   1         A7139_WriteReg(PLL1_REG,orgVal|intFreq);
  236   1            //FP[15:0] =  fpFreg
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 5   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 5   
 
  237   1         A7139_WriteReg(PLL2_REG,fpFreg); 
  238   1            //FPA[15:0] = 0x0000
@@ -318,7 +318,7 @@ line level    source
  296   1        SCS_OUT(HIGH);
  297   1        return 0;
  298   1      }
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 6   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 6   
 
  299          
  300          Uint16 A7139_ReadPID(void)
@@ -382,7 +382,7 @@ line level    source
  358   3            A7139_WritePageA(TX1_PAGEA,0xF706);
  359   3          }
  360   2          break;
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 7   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 7   
 
  361   2          case 150:
  362   2          {
@@ -446,7 +446,7 @@ line level    source
  420          void A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize)
  421          {
  422   1        A7139_StrobeCmd(CMD_TFR); 
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 8   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 8   
 
  423   1           clock_delay_ms(1);
  424   1        SCS_OUT(LOW);
@@ -510,7 +510,7 @@ line level    source
  482          {
  483   1        if(A7139_RCOSC_Cal()==ERR_RCOSC_CAL)
  484   1          return ERR_RCOSC_CAL;
-C51 COMPILER V9.54   A7139                                                                 03/08/2017 15:17:00 PAGE 9   
+C51 COMPILER V9.54   A7139                                                                 03/08/2017 16:52:06 PAGE 9   
 
  485   1        A7139_StrobeCmd(CMD_STBY);
  486   1          //GIO1=FSYNC, GIO2=WTR  

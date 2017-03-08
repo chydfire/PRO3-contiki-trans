@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  03/08/2017 15:17:00 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  03/08/2017 16:52:06 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   50   1        A7139_StrobeCmd(CMD_RX); //enter RX
   51   1        clock_delay_ms(10);
   52   1        
-C51 COMPILER V9.54   MAIN                                                                  03/08/2017 15:17:00 PAGE 2   
+C51 COMPILER V9.54   MAIN                                                                  03/08/2017 16:52:06 PAGE 2   
 
   53   1        id = A7139_ReadReg(SYSTEMCLOCK_REG);
   54   1        printf("reg %d\n", id);
@@ -73,18 +73,17 @@ line level    source
   59   2            a7139_master();
   60   2            clock_delay_ms(10);
   61   2            cmd_master();
-  62   2          printf("cmd end\n");
-  63   2        }
-  64   1        
-  65   1        return 0;
-  66   1      }
-*** WARNING C294 IN LINE 65 OF source\USER\main.c: unreachable code
-*** WARNING C294 IN LINE 65 OF source\USER\main.c: unreachable code
+  62   2        }
+  63   1        
+  64   1        return 0;
+  65   1      }
+*** WARNING C294 IN LINE 64 OF source\USER\main.c: unreachable code
+*** WARNING C294 IN LINE 64 OF source\USER\main.c: unreachable code
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    257    ----
-   CONSTANT SIZE    =     69    ----
+   CODE SIZE        =    248    ----
+   CONSTANT SIZE    =     60    ----
    XDATA SIZE       =     12    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

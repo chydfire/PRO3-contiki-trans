@@ -15,6 +15,8 @@
 #define CMD_FLAG_LF        ( 0x0A )
 #define CMD_FLAG_ESC       ( 0x1B )
 #define CMD_FLAG_ZERO		   ( 0x00 )
+#define CMD_FLAG_PKT_HEAD_1     ( 0xAA )
+#define CMD_FLAG_PKT_HEAD_2     ( 0xBB )
 
 /* Command definitions structure. */
 typedef struct cmd_type 
@@ -24,7 +26,8 @@ typedef struct cmd_type
 }CMD_TYPE;
 
 //return TRUE or FALSE
-extern int getline(char * lp, uint32_t n);
+//extern int getline(char * lp, uint32_t n);
+extern int getline(uint8_t * lp, uint8_t n);
 extern int strtoul(char *s);
 extern char *getentry(char *pSrc, char **ppNext);
 extern int cmd_master(void);

@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 15:17:00 PAGE 1   
+C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE CLOCK
@@ -62,7 +62,7 @@ line level    source
   50   1        TCON  |= 0x40;//enable timer1
   51   1        IEN0  |= 0x88;//enable timer1 interrupt
   52   1      }
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 15:17:00 PAGE 2   
+C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 2   
 
   53          
   54          void clock_isr(void) interrupt ISRTimer1 //0x1B
@@ -126,7 +126,7 @@ line level    source
  112          /*---------------------------------------------------------------------------*/
  113          CCIF clock_time_t
  114          clock_time(void)
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 15:17:00 PAGE 3   
+C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 3   
 
  115          {
  116   1        return count;

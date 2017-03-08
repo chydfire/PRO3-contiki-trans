@@ -186,6 +186,19 @@ char getchar(void)
 	return (char)p;
 }
 
+uint8_t uart_getchar(void)
+{
+	register uint8_t p = 0;
+	
+	if(recv_tail != recv_head)
+	{
+	    p = RxBuf[recv_tail];
+	    recv_tail = (recv_tail + 1) % UART_BUF_LEN_MAX;
+	}
+	
+	return p;
+}
+
 uint8_t avalible(void)
 {
 	uint8_t cnt = 0;

@@ -59,7 +59,6 @@ int main(void)
 		  a7139_master();
 		  clock_delay_ms(10);
 		  cmd_master();
-		printf("cmd end\n");
 	}
 	
 	return 0;
