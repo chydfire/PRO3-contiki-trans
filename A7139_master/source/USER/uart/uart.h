@@ -18,6 +18,8 @@
 
 void uart_init(void);
 void uart_send_byte(unsigned char txData);
+void uart_send_byte1(uint8_t txData);
+void uart_send_string1(uint8_t *s,unsigned char n);
 void uart_send_string(unsigned char *s,unsigned char n);
 void Prints(unsigned char *pd);
 void uart_writeb(char byte);

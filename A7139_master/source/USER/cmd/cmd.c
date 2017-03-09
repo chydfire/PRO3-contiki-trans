@@ -80,7 +80,7 @@ code CMD_TYPE cmd[] = {
 
 //xdata char in_line[CMD_BUF_LEN_MAX] = { 0 };
 xdata uint8_t in_line[CMD_BUF_LEN_MAX] = { 0 };
-
+extern uint16_t xdata per_tick_flag;
 extern uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX];
 
 int getline(uint8_t * lp, uint8_t n)
@@ -89,87 +89,99 @@ int getline(uint8_t * lp, uint8_t n)
     uint8_t c;
 	  uint8_t pos = 0;
 	  uint8_t head1 = 0;
-	
+	  int wait_overtime_flag = 0;
 	  if( avalible() > 0 )
 		{
 			do 
 			{
 					//clock_delay(CMD_GET_LINE_DELAY);
-					c = uart_getchar();
-					switch(c) 
-					{
-						   case CMD_FLAG_ZERO:
-								   if( 1 == head1 )
-									 {
-										 return (TRUE);
-									 }
-							 break;
-							 case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
-							 case CMD_FLAG_CNTL_S:
-							 break;
-							
-							 case CMD_FLAG_BACKSPACE:
-							 case CMD_FLAG_DEL:
-									if (cnt == 0) {
-										 break;
-									}
-									cnt--;                         /* decrement count                */
-									lp--;                          /* and line pointer               */
-									putchar (0x08);                /* echo backspace                 */
-									putchar (' ');
-									putchar (0x08);
-									break;
-							 case CMD_FLAG_PKT_HEAD_1:
-								  head1 = 1;
-							    *lp = c;
-							    a7139_tx[pos] = c;
-							    pos++;
-									lp++;                          /* increment line pointer         */
-									cnt++;
-								  break;
-							 case CMD_FLAG_PKT_HEAD_2:
-								  if( 1 == head1 )
+				c = uart_getchar();
+						switch(c) 
+						{
+								 case CMD_FLAG_ZERO:
+								 break;
+								 case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
+								 case CMD_FLAG_CNTL_S:
+								 break;
+								
+								 case CMD_FLAG_BACKSPACE:
+								 case CMD_FLAG_DEL:
+										if (cnt == 0) {
+											 break;
+										}
+										cnt--;                         /* decrement count                */
+										lp--;                          /* and line pointer               */
+										putchar (0x08);                /* echo backspace                 */
+										putchar (' ');
+										putchar (0x08);
+										break;
+								 case CMD_FLAG_PKT_HEAD_1:
+										head1 = 1;
+										*lp = c;
+										a7139_tx[pos] = c;
+										pos++;
+										lp++;                          /* increment line pointer         */
+										cnt++;
+										break;
+								 
+								 case CMD_FLAG_ESC:
+										*lp = 0;                       /* ESC - stop editing line        */
+										return (FALSE);
+								 case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
+										*lp = c;
+										lp++;                          /* increment line pointer         */
+										cnt++;                         /* and count                      */
+										c = CMD_FLAG_LF;
+								 default:
+									if(head1)
 									{
-										 uint8_t i = 0;
-										
-										 *lp = c;
-										 a7139_tx[pos] = c;
-										 pos++;
-										 lp++;                          /* increment line pointer         */
-										 cnt++;
-										
-										 for(i = 0; i < 5; i++)  // RF_RECV_BUF_LEN_MAX - 2
-										 {
-											  *lp = uart_getchar();
-											  a7139_tx[pos] = *lp;
-										    pos++;
-											  lp++;                          /* increment line pointer         */
-										    cnt++; 
-										 }
-										 
-										 cmd_tx(NULL);
-										 
-										 return (TRUE);
-									}
-									
-								  break;
-							 case CMD_FLAG_ESC:
-									*lp = 0;                       /* ESC - stop editing line        */
-									return (FALSE);
-							 case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
-									*lp = c;
-									lp++;                          /* increment line pointer         */
-									cnt++;                         /* and count                      */
-									c = CMD_FLAG_LF;
-							 default:
-									*lp = c;
-									//putchar (c); 
-									putchar (*lp);             /* echo and store character       */
-									
-									lp++;                          /* increment line pointer         */
-									cnt++;                         /* and count                      */
-									break;
-				}
+										uint8_t i = 0;
+										uint8_t len = 0;
+										uint16_t wait_flag = 0;
+										*lp = c;
+										a7139_tx[pos] = c;
+										len = c;
+										pos++;
+										lp++;                          /* increment line pointer         */
+										cnt++;
+										wait_flag = per_tick_flag;
+										for(i = 0; i < len+1; )  // RF_RECV_BUF_LEN_MAX - 2
+										{
+											if(avalible() > 0){
+											*lp = uart_getchar();
+											a7139_tx[pos] = *lp;
+											pos++;
+											i++;
+											lp++;                          /* increment line pointer         */
+											cnt++;} 
+											if((wait_flag + CLOCK_CONF_SECOND) == per_tick_flag)
+											{
+												wait_overtime_flag = 1;
+												break;
+											}
+										}
+										if(wait_overtime_flag)
+										{
+											pos = 0;
+											head1=0;
+											return (FALSE);
+										}
+										else
+										{ 
+											if(a7139_tx[pos-1]==chkSumCalc(&a7139_tx[1],pos-2))
+											{
+												cmd_tx(NULL);
+												return (TRUE);
+											}
+											else
+												return (FALSE);
+										}									
+									}else{
+										*lp = c;	
+										lp++;                          /* increment line pointer         */
+										cnt++;}                         /* and count                      */
+										break;
+					}				
 		 } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
 	 }
 		
@@ -178,95 +190,6 @@ int getline(uint8_t * lp, uint8_t n)
    return (TRUE);
 }
 
-
-#if 0
-int getline(char * lp, uint32_t n)
-{
-    uint32_t cnt = 0;
-    char c;
-
-	  uint8_t head1 = 0;
-	
-	  if( avalible() > 0 )
-		{
-			do 
-			{
-					//clock_delay(CMD_GET_LINE_DELAY);
-					c = getchar();
-				  putchar(c);
-				  putchar(" ");
-					switch(c) 
-					{
-						   case CMD_FLAG_ZERO:
-							 case CMD_FLAG_CNTL_Q:   /* ignore Control S/Q             */
-							 case CMD_FLAG_CNTL_S:
-							 break;
-							
-							 case CMD_FLAG_BACKSPACE:
-							 case CMD_FLAG_DEL:
-									if (cnt == 0) {
-										 break;
-									}
-									cnt--;                         /* decrement count                */
-									lp--;                          /* and line pointer               */
-									putchar (0x08);                /* echo backspace                 */
-									putchar (' ');
-									putchar (0x08);
-									break;
-							 case CMD_FLAG_PKT_HEAD_1:
-								  head1 = 1;
-							    *lp = c;
-									lp++;                          /* increment line pointer         */
-									cnt++;
-								  break;
-							 case CMD_FLAG_PKT_HEAD_2:
-								  if( 1 == head1 )
-									{
-										 uint8_t i = 0;
-										
-										 *lp = c;
-										 lp++;                          /* increment line pointer         */
-										 cnt++;
-										
-										 for(i = 0; i < 5; i++)  // RF_RECV_BUF_LEN_MAX - 2
-										 {
-											  *lp = getchar();
-											  lp++;                          /* increment line pointer         */
-										    cnt++; 
-										 }
-										 
-										 cmd_tx(NULL);
-										 
-										 return (TRUE);
-									}
-									
-								  break;
-							 case CMD_FLAG_ESC:
-									*lp = 0;                       /* ESC - stop editing line        */
-									return (FALSE);
-							 case CMD_FLAG_CR:                          /* CR - done, stop editing line   */
-									*lp = c;
-									lp++;                          /* increment line pointer         */
-									cnt++;                         /* and count                      */
-									c = CMD_FLAG_LF;
-							 default:
-									*lp = c;
-									//putchar (c); 
-									putchar (*lp);             /* echo and store character       */
-									
-									lp++;                          /* increment line pointer         */
-									cnt++;                         /* and count                      */
-									break;
-				}
-		 } while (cnt < n - 2  &&  c != CMD_FLAG_LF);     /* check limit and CR             */
-	 }
-		
-   *lp = 0;    
-                            /* mark end of string             */
-   return (TRUE);
-}
-
-#endif
 
 int strtoul(char *s)
 {
@@ -336,8 +259,7 @@ int cmd_master(void)
 	 unsigned char u = 0;
    //printf (intro);                            /* display example info        */
    //printf (help);
-   //cmd[0].func(NULL);	//?????recv??
-      //printf (PROMPT);                     /* display prompt              */
+   //printf (PROMPT);                     /* display prompt              */
       /* get command line input      */
 	  ret = getline (in_line, CMD_BUF_LEN_MAX);
 		if( FALSE == ret ) 
@@ -346,7 +268,6 @@ int cmd_master(void)
 		}
 		else
 		{
-			//printf("getline %s\n", in_line);
 			sp = getentry (&in_line[0], &next);
 			if (*sp != 0) 
 			{
@@ -366,6 +287,7 @@ int cmd_master(void)
 				
 				if (i == CMD_COUNT) {
 					ret = FALSE;
+					if(!rf_tx_valid_flag)
 					printf ("\ncmd error\n");
 				}
 			}

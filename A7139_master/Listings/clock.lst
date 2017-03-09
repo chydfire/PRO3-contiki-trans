@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 1   
+C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 16:16:01 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE CLOCK
@@ -27,122 +27,124 @@ line level    source
   15          static volatile  __data clock_time_t seconds = 0; /* Uptime in secs */
   16          
   17          uint8_t xdata per_second_flag = 0;
-  18          
-  19          #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
-  20          #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
-  21          #define T0Mode2 (2 << 0) //T0 mode2, 8-bit auto-reload counter
-  22          #define T0Mode3 (3 << 0) //T0 mode3, T0 two 8-bit counter/T1 no flag
-  23          #define T0GATE (8 << 0) //T0 gating clock by INT0
-  24          #define T0ClkFcpu (0 << 0) //T0 clock source from Fcpu/12
-  25          #define T0ClkExt (4 << 0) //T0 clock source from Fosc or FRTC
-  26          #define T0ExtFosc (0 << 4) //T0 clock source from Fosc
-  27          #define T0ExtFRTC (8 << 4) //T0 clock source from FRTC
-  28          #define T1Mode0 (0 << 4) //T1 mode0, 13-bit counter
-  29          #define T1Mode1 (1 << 4) //T1 mode1, 16-bit counter
-  30          #define T1Mode2 (2 << 4) //T1 mode2, 8-bit auto-reload counter
-  31          #define T1Mode3 (3 << 4) //T1 mode3, T1 stop
-  32          #define T1GATE (8 << 4) //T1 gating clock by INT1
-  33          #define T1ClkFcpu (0 << 4) //T1 clock source from Fcpu/12
-  34          #define T1ClkExt (4 << 4) //T1 clock source from Fosc
-  35          
-  36          void clock_init(void)
-  37          {
-  38   1        //CLKSEL = 0x04; // set fcpu = fosc / 8
-  39   1        //CLKCMD = 0x69;
-  40   1        // T1 mode1, clock source from Fosc
-  41   1        TMOD |= T1Mode1 | T1ClkFcpu;
-  42   1        // Timer 1 clock = Fcpu/12 = 2.67MHz
-  43   1        //TCON0 = 0x05;
-  44   1        // T1_Initial
-  45   1        // 32M/12/20833 = 128
-  46   1        // 65536-20833=0xAE9F
-  47   1        //TMOD &= 0xBF;
-  48   1        TH1 = 0xAE;
-  49   1        TL1 = 0x9F;
-  50   1        TCON  |= 0x40;//enable timer1
-  51   1        IEN0  |= 0x88;//enable timer1 interrupt
-  52   1      }
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 2   
+  18          uint16_t xdata per_tick_flag = 0;
+  19          
+  20          #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
+  21          #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
+  22          #define T0Mode2 (2 << 0) //T0 mode2, 8-bit auto-reload counter
+  23          #define T0Mode3 (3 << 0) //T0 mode3, T0 two 8-bit counter/T1 no flag
+  24          #define T0GATE (8 << 0) //T0 gating clock by INT0
+  25          #define T0ClkFcpu (0 << 0) //T0 clock source from Fcpu/12
+  26          #define T0ClkExt (4 << 0) //T0 clock source from Fosc or FRTC
+  27          #define T0ExtFosc (0 << 4) //T0 clock source from Fosc
+  28          #define T0ExtFRTC (8 << 4) //T0 clock source from FRTC
+  29          #define T1Mode0 (0 << 4) //T1 mode0, 13-bit counter
+  30          #define T1Mode1 (1 << 4) //T1 mode1, 16-bit counter
+  31          #define T1Mode2 (2 << 4) //T1 mode2, 8-bit auto-reload counter
+  32          #define T1Mode3 (3 << 4) //T1 mode3, T1 stop
+  33          #define T1GATE (8 << 4) //T1 gating clock by INT1
+  34          #define T1ClkFcpu (0 << 4) //T1 clock source from Fcpu/12
+  35          #define T1ClkExt (4 << 4) //T1 clock source from Fosc
+  36          
+  37          void clock_init(void)
+  38          {
+  39   1        //CLKSEL = 0x04; // set fcpu = fosc / 8
+  40   1        //CLKCMD = 0x69;
+  41   1        // T1 mode1, clock source from Fosc
+  42   1        TMOD |= T1Mode1 | T1ClkFcpu;
+  43   1        // Timer 1 clock = Fcpu/12 = 2.67MHz
+  44   1        //TCON0 = 0x05;
+  45   1        // T1_Initial
+  46   1        // 32M/12/20833 = 128
+  47   1        // 65536-20833=0xAE9F
+  48   1        //TMOD &= 0xBF;
+  49   1        TH1 = 0xAE;
+  50   1        TL1 = 0x9F;
+  51   1        TCON  |= 0x40;//enable timer1
+  52   1        IEN0  |= 0x88;//enable timer1 interrupt
+C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 16:16:01 PAGE 2   
 
-  53          
-  54          void clock_isr(void) interrupt ISRTimer1 //0x1B
-  55          { 
-  56   1        ET1=0;
-  57   1        
-  58   1        ++count;
-  59   1        if((count % CLOCK_CONF_SECOND) == 0) {
-  60   2          ++seconds;
-  61   2          per_second_flag = 1;
-  62   2          toggle_led_blue;
-  63   2        }
-  64   1        TH1 = 0xAE;
-  65   1        TL1 = 0x9F;
-  66   1        ET1=1;
-  67   1      }
-  68          
-  69          /*---------------------------------------------------------------------------*/
-  70          /**
-  71           * One delay is about 0.6 us, so this function delays for len * 0.6 us
-  72           */
-  73          void
-  74          clock_delay_us(uint16_t dt)
-  75          {
-  76   1        uint16_t i;
-  77   1        for(i = 0; i< dt; i++) {
-  78   2          ASM(nop);
-  79   2        }
-  80   1      }
-  81          
-  82          void
-  83          clock_delay_ms(uint8_t dt)
-  84          {
-  85   1        uint8_t i, j;
-  86   1      
-  87   1          // init value
-  88   1          i = 0;
-  89   1          j = 0;
-  90   1      
-  91   1          for (i=0; i<dt; i++) {
-  92   2              for (j=0; j<220; j++) {
-  93   3                  ASM(nop);    ASM(nop);
-  94   3                  ASM(nop);    ASM(nop);
+  53   1      }
+  54          
+  55          void clock_isr(void) interrupt ISRTimer1 //0x1B
+  56          { 
+  57   1        ET1=0;
+  58   1        
+  59   1        ++count;
+  60   1        ++per_tick_flag;
+  61   1        if((count % CLOCK_CONF_SECOND) == 0) {
+  62   2          ++seconds;
+  63   2          per_second_flag = 1;
+  64   2          //toggle_led_blue;
+  65   2        }
+  66   1        TH1 = 0xAE;
+  67   1        TL1 = 0x9F;
+  68   1        ET1=1;
+  69   1      }
+  70          
+  71          /*---------------------------------------------------------------------------*/
+  72          /**
+  73           * One delay is about 0.6 us, so this function delays for len * 0.6 us
+  74           */
+  75          void
+  76          clock_delay_us(uint16_t dt)
+  77          {
+  78   1        uint16_t i;
+  79   1        for(i = 0; i< dt; i++) {
+  80   2          ASM(nop);
+  81   2        }
+  82   1      }
+  83          
+  84          void
+  85          clock_delay_ms(uint8_t dt)
+  86          {
+  87   1        uint8_t i, j;
+  88   1      
+  89   1          // init value
+  90   1          i = 0;
+  91   1          j = 0;
+  92   1      
+  93   1          for (i=0; i<dt; i++) {
+  94   2              for (j=0; j<220; j++) {
   95   3                  ASM(nop);    ASM(nop);
   96   3                  ASM(nop);    ASM(nop);
-  97   3              }
-  98   2          }
-  99   1      }
- 100          /*---------------------------------------------------------------------------*/
- 101          /**
- 102           * Wait for a multiple of ~8 ms (a tick)
- 103           */
- 104          void
- 105          clock_wait(clock_time_t i)
- 106          {
- 107   1        clock_time_t start;
- 108   1      
- 109   1        start = clock_time();
- 110   1        while(clock_time() - start < i);
- 111   1      }
- 112          /*---------------------------------------------------------------------------*/
- 113          CCIF clock_time_t
- 114          clock_time(void)
-C51 COMPILER V9.54   CLOCK                                                                 03/08/2017 16:52:07 PAGE 3   
+  97   3                  ASM(nop);    ASM(nop);
+  98   3                  ASM(nop);    ASM(nop);
+  99   3              }
+ 100   2          }
+ 101   1      }
+ 102          /*---------------------------------------------------------------------------*/
+ 103          /**
+ 104           * Wait for a multiple of ~8 ms (a tick)
+ 105           */
+ 106          void
+ 107          clock_wait(clock_time_t i)
+ 108          {
+ 109   1        clock_time_t start;
+ 110   1      
+ 111   1        start = clock_time();
+ 112   1        while(clock_time() - start < i);
+ 113   1      }
+ 114          /*---------------------------------------------------------------------------*/
+C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 16:16:01 PAGE 3   
 
- 115          {
- 116   1        return count;
- 117   1      }
- 118          /*---------------------------------------------------------------------------*/
- 119          CCIF unsigned long
- 120          clock_seconds(void)
- 121          {
- 122   1        return seconds;
- 123   1      }
+ 115          CCIF clock_time_t
+ 116          clock_time(void)
+ 117          {
+ 118   1        return count;
+ 119   1      }
+ 120          /*---------------------------------------------------------------------------*/
+ 121          CCIF unsigned long
+ 122          clock_seconds(void)
+ 123          {
+ 124   1        return seconds;
+ 125   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    321    ----
+   CODE SIZE        =    333    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     20    ----
+   XDATA SIZE       =     22    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

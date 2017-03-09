@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   A7139_COMM                                                            03/08/2017 16:52:07 PAGE 1   
+C51 COMPILER V9.54   A7139_COMM                                                            03/09/2017 16:16:01 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE A7139_COMM
@@ -24,132 +24,144 @@ line level    source
   12          uint8_t idata crc_check_code_l = 0;
   13          uint8_t idata crc_check_code_h = 0;
   14          
-  15          extern uint8_t idata timer0_flag;
-  16          extern uint8_t idata timer1_flag;
-  17          uint8_t idata bufSend[]=  {"A7139"};
-  18          uint8_t idata bufRecv[RF_RECV_BUF_LEN_MAX]={0};
-  19          
-  20          uint8_t idata string_test[] = {"hellow !"};
-  21          uint8_t idata i = 0;
-  22          
-  23          extern uint8_t idata UartRxFlag;
-  24          extern uint8_t idata RxBuf[RF_RECV_BUF_LEN_MAX];
-  25          uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX]={0};
-  26          
-  27          extern uint8_t xdata per_second_flag;
-  28          extern xdata uint8_t rf_tx_valid_flag;
-  29          
-  30          //定义二维数组，存放向各节点要发送的数据，注意第3字节为节点地址，节点接收到数据后需比对节点地址
-  31          // uint8_t xdata slave_cmd[10][RF_RECV_BUF_LEN_MAX] = {{0xaa,0xbb,0x0a,0x00,0x00,0xfe,0x38},
-  32          //                             {0xaa,0xbb,0x02,0x00,0x00,0x3c,0xb9},
-  33          //                             {0xaa,0xbb,0x03,0x00,0x00,0xfc,0xe8},
-  34          //                             {0xaa,0xbb,0x04,0x00,0x00,0x3d,0x59},
-  35          //                             {0xaa,0xbb,0x05,0x00,0x00,0xfd,0x08},
-  36          //                             {0xaa,0xbb,0x06,0x00,0x00,0xfd,0xf8},
-  37          //                             {0xaa,0xbb,0x07,0x00,0x00,0x3d,0xa9},
-  38          //                             {0xaa,0xbb,0x08,0x00,0x00,0x3e,0x99},
-  39          //                             {0xaa,0xbb,0x09,0x00,0x00,0xfe,0xc8},
-  40          //                             {0xaa,0xbb,0x0a,0x00,0x00,0xfe,0x38}};
-  41           
-  42                                       
-  43          //INT1 interrupt function
-  44          void INT1Interrupt(void) interrupt ISRInt1 //
-  45          { //IE0 clear by hardware
-  46   1        a7139_irq_status = 1; 
-  47   1      }
-  48          
-  49          //a7139 transmit a packet
-  50          void a7139_tx_packet(uint8_t *s,uint8_t n)
-  51          {
-  52   1          A7139_StrobeCmd(CMD_STBY);
-C51 COMPILER V9.54   A7139_COMM                                                            03/08/2017 16:52:07 PAGE 2   
+  15          
+  16          uint8_t idata bufSend[]=  {"A7139"};
+  17          uint8_t idata bufRecv[RF_RECV_BUF_LEN_MAX]={0};
+  18          
+  19          uint8_t idata string_test[] = {"hellow !"};
+  20          uint8_t idata i = 0;
+  21          
+  22          extern uint8_t idata UartRxFlag;
+  23          extern uint8_t idata RxBuf[RF_RECV_BUF_LEN_MAX];
+  24          uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX]={0};
+  25          
+  26          extern uint8_t xdata per_second_flag;
+  27          extern xdata uint8_t rf_tx_valid_flag;
+  28          
+  29          //定义二维数组，存放向各节点要发送的数据，注意第3字节为节点地址，节点接收到数据后需比对节点地址
+  30           uint8_t xdata slave_cmd[10][RF_RECV_BUF_LEN_MAX] = {{0xaa,0xbb,0x01,0x00,0x00,0x3c,0x49},
+  31                                       {0xaa,0xbb,0x02,0x00,0x00,0x3c,0xb9},
+  32                                       {0xaa,0xbb,0x03,0x00,0x00,0xfc,0xe8},
+  33                                       {0xaa,0xbb,0x04,0x00,0x00,0x3d,0x59},
+  34                                       {0xaa,0xbb,0x05,0x00,0x00,0xfd,0x08},
+  35                                       {0xaa,0xbb,0x06,0x00,0x00,0xfd,0xf8},
+  36                                       {0xaa,0xbb,0x07,0x00,0x00,0x3d,0xa9},
+  37                                       {0xaa,0xbb,0x08,0x00,0x00,0x3e,0x99},
+  38                                       {0xaa,0xbb,0x09,0x00,0x00,0xfe,0xc8},
+  39                                       {0xaa,0xbb,0x0a,0x00,0x00,0xfe,0x38}};
+  40           
+  41                                       
+  42          //INT1 interrupt function
+  43          void INT1Interrupt(void) interrupt ISRInt1 //
+  44          { //IE0 clear by hardware
+  45   1        a7139_irq_status = 1; 
+  46   1      }
+  47          
+  48          //a7139 transmit a packet
+  49          void a7139_tx_packet(uint8_t *s,uint8_t n)
+  50          {
+  51   1          A7139_StrobeCmd(CMD_STBY);
+  52   1          delay_ms(10);
+C51 COMPILER V9.54   A7139_COMM                                                            03/09/2017 16:16:01 PAGE 2   
 
-  53   1          delay_ms(10);
-  54   1          //send a tx packet
-  55   1      //    A7139_WriteFIFO(s,7);
-  56   1          A7139_WriteFIFO(s,n);
-  57   1          A7139_StrobeCmd(CMD_TX);
-  58   1          delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
-  59   1          rf_state_a7139 =  RF_STATE_A7139_TX;
-  60   1      }
-  61          
-  62          int a7139_master()
-  63          {
-  64   1          int ret = TRUE;
-  65   1          int i = 0;
-  66   1        
-  67   1          //send a tx packet per 100ms
-  68   1      //     if(per_second_flag == 1)
-  69   1      //     {
-  70   1      //       per_second_flag = 0;
-  71   1      //         
-  72   1      //       if(i < 10)
-  73   1      //       {
-  74   1      //          a7139_tx_packet(slave_cmd[i],RF_RECV_BUF_LEN_MAX);
-  75   1      //          i++;
-  76   1      //       }
-  77   1      //       else
-  78   1      //       {
-  79   1      //          i = 0;
-  80   1      //       }
-  81   1      //     }
-  82   1           //A7139 interrupt
-  83   1           if(a7139_irq_status == 1)
-  84   1           {
-  85   2            switch(rf_state_a7139)
-  86   2            {
-  87   3              case RF_STATE_A7139_IDLE:
-  88   3                A7139_ReadFIFO(bufRecv,sizeof(bufSend));
-  89   3                A7139_StrobeCmd(CMD_RX);
-  90   3                rf_state_a7139 = RF_STATE_A7139_RX;
-  91   3                break;
-  92   3              case RF_STATE_A7139_RX:
-  93   3                A7139_ReadFIFO(bufRecv,sizeof(bufRecv));
-  94   3                A7139_StrobeCmd(CMD_RX);                
-  95   3              
-  96   3                crc_check_code = Get_CRC_Check_Code(bufRecv,sizeof(bufRecv)-2);
-  97   3                crc_check_code_l = 0xff & crc_check_code;
-  98   3                crc_check_code_h = 0xff & (crc_check_code>>8);
-  99   3                if((crc_check_code_h == bufRecv[5])&&(crc_check_code_l == bufRecv[6]))  //CRC 校验,高字节在前
- 100   3                {
- 101   4                  if(bufRecv[2] == 0x0a)//节点地址
- 102   4                  {
- 103   5                    uart_send_string(bufRecv,sizeof(bufRecv));//debug 
- 104   5                    toggle_led_red;
- 105   5                  }
- 106   4                }
- 107   3                break;
- 108   3              case RF_STATE_A7139_TX:
- 109   3                //tx completed
- 110   3                toggle_led_blue;//debug     
- 111   3                A7139_StrobeCmd(CMD_RX); //enter RX 
- 112   3                delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
- 113   3                rf_state_a7139 = RF_STATE_A7139_RX;       
- 114   3                break;
-C51 COMPILER V9.54   A7139_COMM                                                            03/08/2017 16:52:07 PAGE 3   
+  53   1          //send a tx packet
+  54   1      //    A7139_WriteFIFO(s,7);
+  55   1          A7139_WriteFIFO(s,n);
+  56   1          A7139_StrobeCmd(CMD_TX);
+  57   1          delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
+  58   1          rf_state_a7139 =  RF_STATE_A7139_TX;
+  59   1      }
+  60          uint8_t chkSumCalc( const uint8_t * pData, uint8_t len )
+  61          {
+  62   1          uint8_t chksum = 0;
+  63   1          uint8_t i = 0;
+  64   1      
+  65   1          for( i = 0; i < len; i++ )
+  66   1          {
+  67   2              chksum += pData[i];
+  68   2          }
+  69   1      
+  70   1          chksum = ~chksum + 1;
+  71   1          return chksum;
+  72   1      }
+  73          int a7139_master()
+  74          {
+  75   1          int ret = TRUE;
+  76   1          uint8_t rx_tmp = 0;
+  77   1      //    static int i = 0;
+  78   1      //     uint8_t tmp[RF_RECV_BUF_LEN_MAX] = {0xaa,0x07,0x0a,0x00,0x01,0x02,0x03,0x04,0x05,0xE0};
+  79   1        
+  80   1          //send a tx packet per 100ms
+  81   1      //     if(per_second_flag == 1)
+  82   1      //     {
+  83   1      //       per_second_flag = 0;
+  84   1      //         a7139_tx_packet(tmp,RF_RECV_BUF_LEN_MAX);
+  85   1      //       if(i < 10)
+  86   1      //       {
+  87   1      //          a7139_tx_packet(slave_cmd[i],RF_RECV_BUF_LEN_MAX);
+  88   1      //          i++;
+  89   1      //       }
+  90   1      //       else
+  91   1      //       {
+  92   1      //          i = 0;
+  93   1      //       }
+  94   1      //     }
+  95   1           //A7139 interrupt
+  96   1           if(a7139_irq_status == 1)
+  97   1           {
+  98   2            switch(rf_state_a7139)
+  99   2            {
+ 100   3              case RF_STATE_A7139_IDLE:
+ 101   3                A7139_ReadFIFO(bufRecv,sizeof(bufSend));
+ 102   3                A7139_StrobeCmd(CMD_RX);
+ 103   3                rf_state_a7139 = RF_STATE_A7139_RX;
+ 104   3                break;
+ 105   3              case RF_STATE_A7139_RX:
+ 106   3                A7139_ReadFIFO(bufRecv,sizeof(bufRecv));
+ 107   3                A7139_StrobeCmd(CMD_RX);                
+ 108   3              
+ 109   3                rx_tmp=bufRecv[1];
+ 110   3              
+ 111   3                if(bufRecv[rx_tmp+2]==chkSumCalc(&bufRecv[1],rx_tmp+1))  //CRC 校验,高字节在前
+ 112   3                {
+ 113   4                  if(bufRecv[2] == 0x0a)//节点地址
+ 114   4                  {
+C51 COMPILER V9.54   A7139_COMM                                                            03/09/2017 16:16:01 PAGE 3   
 
- 115   3            }
- 116   2      
- 117   2            a7139_irq_status = 0;
- 118   2           }
- 119   1           //uart received a packet
- 120   1           if(rf_tx_valid_flag == 1)
- 121   1           {
- 122   2             a7139_tx_packet(a7139_tx,RF_RECV_BUF_LEN_MAX);
- 123   2             
- 124   2             rf_tx_valid_flag = 0;
- 125   2           }
- 126   1         return ret;
- 127   1      }
+ 115   5                    uart_send_string1(bufRecv,sizeof(bufRecv));//debug 
+ 116   5                    toggle_led_red;
+ 117   5                  }
+ 118   4                }
+ 119   3                break;
+ 120   3              case RF_STATE_A7139_TX:
+ 121   3                //tx completed
+ 122   3                toggle_led_blue;//debug     
+ 123   3                A7139_StrobeCmd(CMD_RX); //enter RX 
+ 124   3                delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
+ 125   3                rf_state_a7139 = RF_STATE_A7139_RX;       
+ 126   3                break;
+ 127   3            }
+ 128   2      
+ 129   2            a7139_irq_status = 0;
+ 130   2           }
+ 131   1           //uart received a packet
+ 132   1           if(rf_tx_valid_flag == 1)
+ 133   1           {
+ 134   2             a7139_tx_packet(a7139_tx,RF_RECV_BUF_LEN_MAX);
+ 135   2             
+ 136   2             rf_tx_valid_flag = 0;
+ 137   2           }
+ 138   1         return ret;
+ 139   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    327    ----
+   CODE SIZE        =    393    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     15    ----
+   XDATA SIZE       =    453    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
-   IDATA SIZE       =     29    ----
+   IDATA SIZE       =     62    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 

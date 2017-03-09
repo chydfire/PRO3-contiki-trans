@@ -110,6 +110,29 @@ void uart_send_byte(unsigned char txData)
         TI0 = 0;
     }
 }
+
+//UART send one byte function
+void uart_send_byte1(uint8_t txData)
+{
+    S0BUF = txData;
+
+	  while(!TI0);       // wait for end of transmit
+
+    if (TI0) 
+		{
+        TI0 = 0;
+    }
+}
+
+//UART send string function
+void uart_send_string1(uint8_t *s,unsigned char n)
+{
+   unsigned char idata i = 0;
+	 for(i=0;i<n;i++)
+	 {
+		uart_send_byte1(s[i]);
+	 }
+}
 //UART send string function
 void uart_send_string(unsigned char *s,unsigned char n)
 {
