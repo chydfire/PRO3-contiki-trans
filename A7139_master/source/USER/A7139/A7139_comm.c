@@ -14,7 +14,7 @@ uint8_t idata crc_check_code_h = 0;
 
 
 uint8_t idata bufSend[]=	{"A7139"};
-uint8_t idata bufRecv[RF_RECV_BUF_LEN_MAX]={0};
+uint8_t xdata bufRecv[RF_RECV_BUF_LEN_MAX]={0};
 
 uint8_t idata string_test[] = {"hellow !"};
 uint8_t idata i = 0;
@@ -25,6 +25,8 @@ uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX]={0};
 
 extern uint8_t xdata per_second_flag;
 extern xdata uint8_t rf_tx_valid_flag;
+
+xdata uint8_t rf_retx_valid_flag = 0;
 
 //定义二维数组，存放向各节点要发送的数据，注意第3字节为节点地址，节点接收到数据后需比对节点地址
  uint8_t xdata slave_cmd[10][RF_RECV_BUF_LEN_MAX] = {{0xaa,0xbb,0x01,0x00,0x00,0x3c,0x49},
@@ -106,20 +108,27 @@ int a7139_master()
 					A7139_ReadFIFO(bufRecv,sizeof(bufRecv));
 					A7139_StrobeCmd(CMD_RX);								
 				
-				  rx_tmp=bufRecv[1];
-				
-				  if(bufRecv[rx_tmp+2]==chkSumCalc(&bufRecv[1],rx_tmp+1))  //CRC 校验,高字节在前
-					{
+				  if(bufRecv[bufRecv[1]+2]==chkSumCalc(&bufRecv[1],bufRecv[1]+1))  //CRC 校验,高字节在前
+					{ 
 						if(bufRecv[2] == 0x0a)//节点地址
 						{
-							uart_send_string1(bufRecv,sizeof(bufRecv));//debug 
+							uart_send_string1(bufRecv,bufRecv[1]+3);//debug 
 							toggle_led_red;
+						}
+						else
+						{
+							if(bufRecv[3])
+							{
+								bufRecv[3]--;
+								bufRecv[bufRecv[1]+2]++;
+								rf_retx_valid_flag=1;
+							}
 						}
 					}
 					break;
 				case RF_STATE_A7139_TX:
 					//tx completed
-				  toggle_led_blue;//debug			
+				  blink_led_blue;//debug			
 					A7139_StrobeCmd(CMD_RX); //enter RX 
 					delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
 					rf_state_a7139 = RF_STATE_A7139_RX;				
@@ -128,10 +137,17 @@ int a7139_master()
 
 			a7139_irq_status = 0;
 		 }
+		 if(rf_retx_valid_flag)
+		{
+			clock_delay_ms(1000);
+			a7139_tx_packet(bufRecv,bufRecv[1]+3);
+			rf_retx_valid_flag = 0;
+		}
+		 
 		 //uart received a packet
 		 if(rf_tx_valid_flag == 1)
 		 {
-			 a7139_tx_packet(a7139_tx,RF_RECV_BUF_LEN_MAX);
+			 a7139_tx_packet(a7139_tx,a7139_tx[1]+3);
 			 
 			 rf_tx_valid_flag = 0;
 		 }
