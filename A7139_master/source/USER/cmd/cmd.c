@@ -51,11 +51,6 @@ static void cmd_help (char *par)
 	return;
 }
 
-static void cmd_tx (char *par) 
-{
-	rf_tx_valid_flag = 1;
-}
-
 code CMD_TYPE cmd[] = {
 //	"RECV", cmd_recv,
 //	"XRAM", cmd_xram,
@@ -73,14 +68,12 @@ code CMD_TYPE cmd[] = {
 	//"INFO", cmd_info,
 	"HELP", cmd_help,
 	//"?",    cmd_help
-	"TX", cmd_tx,
+	//"TX", cmd_tx,
   };
 	
 #define CMD_COUNT   (sizeof (cmd) / sizeof (cmd[0]))
 
-//xdata char in_line[CMD_BUF_LEN_MAX] = { 0 };
 xdata uint8_t in_line[CMD_BUF_LEN_MAX] = { 0 };
-extern uint16_t xdata per_tick_flag;
 extern uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX];
 
 int getline(uint8_t * lp, uint8_t n)
@@ -137,14 +130,14 @@ int getline(uint8_t * lp, uint8_t n)
 									{
 										uint8_t i = 0;
 										uint8_t len = 0;
-										uint16_t wait_flag = 0;
+										clock_time_t wait_flag = 0;
 										*lp = c;
 										a7139_tx[pos] = c;
 										len = c;
 										pos++;
 										lp++;                          /* increment line pointer         */
 										cnt++;
-										wait_flag = per_tick_flag;
+										wait_flag = clock_time();
 										for(i = 0; i < len+1; )  // RF_RECV_BUF_LEN_MAX - 2
 										{
 											if(avalible() > 0){
@@ -154,7 +147,7 @@ int getline(uint8_t * lp, uint8_t n)
 											i++;
 											lp++;                          /* increment line pointer         */
 											cnt++;} 
-											if((wait_flag + CLOCK_CONF_SECOND) == per_tick_flag)
+											if((wait_flag + CLOCK_CONF_SECOND) == clock_time())
 											{
 												wait_overtime_flag = 1;
 												break;
@@ -170,7 +163,7 @@ int getline(uint8_t * lp, uint8_t n)
 										{ 
 											if(a7139_tx[pos-1]==chkSumCalc(&a7139_tx[1],pos-2))
 											{
-												cmd_tx(NULL);
+												rf_tx_valid_flag=1;
 												return (TRUE);
 											}
 											else

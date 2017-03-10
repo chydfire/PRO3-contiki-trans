@@ -14,9 +14,6 @@ static volatile unsigned long timer_value = 0;
 static volatile  __data clock_time_t count = 0; /* Uptime in ticks */
 static volatile  __data clock_time_t seconds = 0; /* Uptime in secs */
 
-uint8_t xdata per_second_flag = 0;
-uint16_t xdata per_tick_flag = 0;
-
 #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
 #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
 #define T0Mode2 (2 << 0) //T0 mode2, 8-bit auto-reload counter
@@ -57,10 +54,9 @@ void clock_isr(void) interrupt ISRTimer1 //0x1B
 	ET1=0;
 	
 	++count;
-	++per_tick_flag;
 	if((count % CLOCK_CONF_SECOND) == 0) {
     ++seconds;
-		per_second_flag = 1;
+//		per_second_flag = 1;
 		//toggle_led_blue;
   }
 	TH1 = 0xAE;

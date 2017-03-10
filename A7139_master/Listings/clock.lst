@@ -1,9 +1,9 @@
-C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 18:13:18 PAGE 1   
+C51 COMPILER V9.54   CLOCK                                                                 03/10/2017 11:11:23 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE CLOCK
 OBJECT MODULE PLACED IN .\output\clock.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\clock\clock.c LARGE OPTIMIZE(0,SPEED) BROWSE MODC2 INCDIR(.\
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\clock\clock.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 INCDIR(.\
                     -source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;
                     -.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\clock.lst) TABS(2) OBJECT(
                     -.\output\clock.obj)
@@ -26,125 +26,121 @@ line level    source
   14          static volatile  __data clock_time_t count = 0; /* Uptime in ticks */
   15          static volatile  __data clock_time_t seconds = 0; /* Uptime in secs */
   16          
-  17          uint8_t xdata per_second_flag = 0;
-  18          uint16_t xdata per_tick_flag = 0;
-  19          
-  20          #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
-  21          #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
-  22          #define T0Mode2 (2 << 0) //T0 mode2, 8-bit auto-reload counter
-  23          #define T0Mode3 (3 << 0) //T0 mode3, T0 two 8-bit counter/T1 no flag
-  24          #define T0GATE (8 << 0) //T0 gating clock by INT0
-  25          #define T0ClkFcpu (0 << 0) //T0 clock source from Fcpu/12
-  26          #define T0ClkExt (4 << 0) //T0 clock source from Fosc or FRTC
-  27          #define T0ExtFosc (0 << 4) //T0 clock source from Fosc
-  28          #define T0ExtFRTC (8 << 4) //T0 clock source from FRTC
-  29          #define T1Mode0 (0 << 4) //T1 mode0, 13-bit counter
-  30          #define T1Mode1 (1 << 4) //T1 mode1, 16-bit counter
-  31          #define T1Mode2 (2 << 4) //T1 mode2, 8-bit auto-reload counter
-  32          #define T1Mode3 (3 << 4) //T1 mode3, T1 stop
-  33          #define T1GATE (8 << 4) //T1 gating clock by INT1
-  34          #define T1ClkFcpu (0 << 4) //T1 clock source from Fcpu/12
-  35          #define T1ClkExt (4 << 4) //T1 clock source from Fosc
-  36          
-  37          void clock_init(void)
-  38          {
-  39   1        //CLKSEL = 0x04; // set fcpu = fosc / 8
-  40   1        //CLKCMD = 0x69;
-  41   1        // T1 mode1, clock source from Fosc
-  42   1        TMOD |= T1Mode1 | T1ClkFcpu;
-  43   1        // Timer 1 clock = Fcpu/12 = 2.67MHz
-  44   1        //TCON0 = 0x05;
-  45   1        // T1_Initial
-  46   1        // 32M/12/20833 = 128
-  47   1        // 65536-20833=0xAE9F
-  48   1        //TMOD &= 0xBF;
-  49   1        TH1 = 0xAE;
-  50   1        TL1 = 0x9F;
-  51   1        TCON  |= 0x40;//enable timer1
-  52   1        IEN0  |= 0x88;//enable timer1 interrupt
-C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 18:13:18 PAGE 2   
+  17          #define T0Mode0 (0 << 0) //T0 mode0, 13-bit counter
+  18          #define T0Mode1 (1 << 0) //T0 mode1, 16-bit counter
+  19          #define T0Mode2 (2 << 0) //T0 mode2, 8-bit auto-reload counter
+  20          #define T0Mode3 (3 << 0) //T0 mode3, T0 two 8-bit counter/T1 no flag
+  21          #define T0GATE (8 << 0) //T0 gating clock by INT0
+  22          #define T0ClkFcpu (0 << 0) //T0 clock source from Fcpu/12
+  23          #define T0ClkExt (4 << 0) //T0 clock source from Fosc or FRTC
+  24          #define T0ExtFosc (0 << 4) //T0 clock source from Fosc
+  25          #define T0ExtFRTC (8 << 4) //T0 clock source from FRTC
+  26          #define T1Mode0 (0 << 4) //T1 mode0, 13-bit counter
+  27          #define T1Mode1 (1 << 4) //T1 mode1, 16-bit counter
+  28          #define T1Mode2 (2 << 4) //T1 mode2, 8-bit auto-reload counter
+  29          #define T1Mode3 (3 << 4) //T1 mode3, T1 stop
+  30          #define T1GATE (8 << 4) //T1 gating clock by INT1
+  31          #define T1ClkFcpu (0 << 4) //T1 clock source from Fcpu/12
+  32          #define T1ClkExt (4 << 4) //T1 clock source from Fosc
+  33          
+  34          void clock_init(void)
+  35          {
+  36   1        //CLKSEL = 0x04; // set fcpu = fosc / 8
+  37   1        //CLKCMD = 0x69;
+  38   1        // T1 mode1, clock source from Fosc
+  39   1        TMOD |= T1Mode1 | T1ClkFcpu;
+  40   1        // Timer 1 clock = Fcpu/12 = 2.67MHz
+  41   1        //TCON0 = 0x05;
+  42   1        // T1_Initial
+  43   1        // 32M/12/20833 = 128
+  44   1        // 65536-20833=0xAE9F
+  45   1        //TMOD &= 0xBF;
+  46   1        TH1 = 0xAE;
+  47   1        TL1 = 0x9F;
+  48   1        TCON  |= 0x40;//enable timer1
+  49   1        IEN0  |= 0x88;//enable timer1 interrupt
+  50   1      }
+  51          
+  52          void clock_isr(void) interrupt ISRTimer1 //0x1B
+C51 COMPILER V9.54   CLOCK                                                                 03/10/2017 11:11:23 PAGE 2   
 
-  53   1      }
-  54          
-  55          void clock_isr(void) interrupt ISRTimer1 //0x1B
-  56          { 
-  57   1        ET1=0;
-  58   1        
-  59   1        ++count;
-  60   1        ++per_tick_flag;
-  61   1        if((count % CLOCK_CONF_SECOND) == 0) {
-  62   2          ++seconds;
-  63   2          per_second_flag = 1;
-  64   2          //toggle_led_blue;
-  65   2        }
-  66   1        TH1 = 0xAE;
-  67   1        TL1 = 0x9F;
-  68   1        ET1=1;
-  69   1      }
-  70          
-  71          /*---------------------------------------------------------------------------*/
-  72          /**
-  73           * One delay is about 0.6 us, so this function delays for len * 0.6 us
-  74           */
-  75          void
-  76          clock_delay_us(uint16_t dt)
-  77          {
-  78   1        uint16_t i;
-  79   1        for(i = 0; i< dt; i++) {
-  80   2          ASM(nop);
-  81   2        }
-  82   1      }
-  83          
-  84          void
-  85          clock_delay_ms(uint8_t dt)
-  86          {
-  87   1        uint8_t i, j;
+  53          { 
+  54   1        ET1=0;
+  55   1        
+  56   1        ++count;
+  57   1        if((count % CLOCK_CONF_SECOND) == 0) {
+  58   2          ++seconds;
+  59   2      //    per_second_flag = 1;
+  60   2          //toggle_led_blue;
+  61   2        }
+  62   1        TH1 = 0xAE;
+  63   1        TL1 = 0x9F;
+  64   1        ET1=1;
+  65   1      }
+  66          
+  67          /*---------------------------------------------------------------------------*/
+  68          /**
+  69           * One delay is about 0.6 us, so this function delays for len * 0.6 us
+  70           */
+  71          void
+  72          clock_delay_us(uint16_t dt)
+  73          {
+  74   1        uint16_t i;
+  75   1        for(i = 0; i< dt; i++) {
+  76   2          ASM(nop);
+  77   2        }
+  78   1      }
+  79          
+  80          void
+  81          clock_delay_ms(uint8_t dt)
+  82          {
+  83   1        uint8_t i, j;
+  84   1      
+  85   1          // init value
+  86   1          i = 0;
+  87   1          j = 0;
   88   1      
-  89   1          // init value
-  90   1          i = 0;
-  91   1          j = 0;
-  92   1      
-  93   1          for (i=0; i<dt; i++) {
-  94   2              for (j=0; j<220; j++) {
-  95   3                  ASM(nop);    ASM(nop);
-  96   3                  ASM(nop);    ASM(nop);
-  97   3                  ASM(nop);    ASM(nop);
-  98   3                  ASM(nop);    ASM(nop);
-  99   3              }
- 100   2          }
- 101   1      }
- 102          /*---------------------------------------------------------------------------*/
- 103          /**
- 104           * Wait for a multiple of ~8 ms (a tick)
- 105           */
- 106          void
- 107          clock_wait(clock_time_t i)
- 108          {
- 109   1        clock_time_t start;
- 110   1      
- 111   1        start = clock_time();
- 112   1        while(clock_time() - start < i);
- 113   1      }
- 114          /*---------------------------------------------------------------------------*/
-C51 COMPILER V9.54   CLOCK                                                                 03/09/2017 18:13:18 PAGE 3   
+  89   1          for (i=0; i<dt; i++) {
+  90   2              for (j=0; j<220; j++) {
+  91   3                  ASM(nop);    ASM(nop);
+  92   3                  ASM(nop);    ASM(nop);
+  93   3                  ASM(nop);    ASM(nop);
+  94   3                  ASM(nop);    ASM(nop);
+  95   3              }
+  96   2          }
+  97   1      }
+  98          /*---------------------------------------------------------------------------*/
+  99          /**
+ 100           * Wait for a multiple of ~8 ms (a tick)
+ 101           */
+ 102          void
+ 103          clock_wait(clock_time_t i)
+ 104          {
+ 105   1        clock_time_t start;
+ 106   1      
+ 107   1        start = clock_time();
+ 108   1        while(clock_time() - start < i);
+ 109   1      }
+ 110          /*---------------------------------------------------------------------------*/
+ 111          CCIF clock_time_t
+ 112          clock_time(void)
+ 113          {
+ 114   1        return count;
+C51 COMPILER V9.54   CLOCK                                                                 03/10/2017 11:11:23 PAGE 3   
 
- 115          CCIF clock_time_t
- 116          clock_time(void)
- 117          {
- 118   1        return count;
- 119   1      }
- 120          /*---------------------------------------------------------------------------*/
- 121          CCIF unsigned long
- 122          clock_seconds(void)
- 123          {
- 124   1        return seconds;
- 125   1      }
+ 115   1      }
+ 116          /*---------------------------------------------------------------------------*/
+ 117          CCIF unsigned long
+ 118          clock_seconds(void)
+ 119          {
+ 120   1        return seconds;
+ 121   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    333    ----
+   CODE SIZE        =    198    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     22    ----
+   XDATA SIZE       =      8       4
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

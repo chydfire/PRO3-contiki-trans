@@ -35,44 +35,41 @@
 #define GIO1_IN()	(P21 & 1)   //read GIO1(PC10) pin value
 #define GIO2_IN()	(P22 & 1)   //read GIO2(PE3) pin value
 
-#ifndef u8
-#define u8 unsigned char
-#endif
+//#ifndef uint8_t
+//#define uint8_t unsigned char
+//#endif
 
-#ifndef u16
-#define u16 unsigned int
-#endif
+//#ifndef uint16_t
+//#define uint16_t unsigned int
+//#endif
 
-#ifndef u32
-#define u32 unsigned long
-#endif
+//#ifndef u32
+//#define u32 unsigned long
+//#endif
 
 
-#ifndef Uint8
-#define Uint8 unsigned char
-#endif
+//#ifndef Uint8
+//#define Uint8 unsigned char
+//#endif
 
-#ifndef Uint16
-#define Uint16 unsigned int
-#endif
+//#ifndef Uint16
+//#define Uint16 unsigned int
+//#endif
 
-#ifndef Uint32
-#define Uint32 unsigned long
-#endif
+//#ifndef Uint32
+//#define Uint32 unsigned long
+//#endif
 
 void init_irq_a7139();
 void init_spi_a7139(void);
 void cs_low_a7139(void);
 void cs_high_a7139(void);
 
-void SIO_Mode(u8 mod);
-void SPIx_WriteByte(u8 dat);
-void SPIx_WriteWord(u16 wrd);
-u8 SPIx_ReadByte(void);
-u16 SPIx_ReadWord(void);
-
-void delay_us(unsigned char n);
-void delay_ms(unsigned int n);
+void SIO_Mode(uint8_t mod);
+void SPIx_WriteByte(uint8_t dat);
+void SPIx_WriteWord(uint16_t wrd);
+uint8_t SPIx_ReadByte(void);
+uint16_t SPIx_ReadWord(void);
 
 #endif
 

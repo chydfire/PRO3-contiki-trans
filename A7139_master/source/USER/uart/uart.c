@@ -2,8 +2,6 @@
 #include "uart.h"
 
 xdata uint8_t RxBuf[UART_BUF_LEN_MAX] = {0};
-xdata uint8_t RxData = 0;
-xdata uint8_t UartRxFlag = 0;
 xdata uint8_t recv_head=0;
 xdata uint8_t recv_tail=0;
 
@@ -127,53 +125,36 @@ void uart_send_byte1(uint8_t txData)
 //UART send string function
 void uart_send_string1(uint8_t *s,unsigned char n)
 {
-   unsigned char idata i = 0;
+   unsigned char i = 0;
 	 for(i=0;i<n;i++)
 	 {
 		uart_send_byte1(s[i]);
 	 }
 }
-//UART send string function
-void uart_send_string(unsigned char *s,unsigned char n)
-{
-   unsigned char idata i = 0;
-	 for(i=0;i<n;i++)
-	 {
-		uart_send_byte(s[i]);
-	 }
-}
-//·¢ËÍÒ»¸ö×Ö·û´®
-void Prints(unsigned char *pd)
-{
-	while((*pd) != '\0')
-	{
-  	uart_send_byte(*pd);
-		pd++;
-	}
-}
 
-unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n)
-{
- unsigned char idata i,j;
- unsigned int  idata CRC_Code = 0xFFFF;
- for(i=0;i<n;i++)
- {
-     CRC_Code ^= s[i];
-     for(j=0;j<8;j++)
-     {
-        if(CRC_Code&1)
-        {
-         CRC_Code >>= 1;
-         CRC_Code ^= 0xA001;
-        }
-        else
-        {
-         CRC_Code >>= 1;
-        }
-     }
- }
- return CRC_Code;
-}
+
+//unsigned int Get_CRC_Check_Code(unsigned char *s,unsigned int n)
+//{
+// unsigned char idata i,j;
+// unsigned int  idata CRC_Code = 0xFFFF;
+// for(i=0;i<n;i++)
+// {
+//     CRC_Code ^= s[i];
+//     for(j=0;j<8;j++)
+//     {
+//        if(CRC_Code&1)
+//        {
+//         CRC_Code >>= 1;
+//         CRC_Code ^= 0xA001;
+//        }
+//        else
+//        {
+//         CRC_Code >>= 1;
+//        }
+//     }
+// }
+// return CRC_Code;
+//}
 
 
 void
@@ -196,18 +177,6 @@ putchar(char c)
   return c;
 }
 
-char getchar(void)
-{
-	register uint8_t p = 0;
-	
-	if(recv_tail != recv_head)
-	{
-	    p = RxBuf[recv_tail];
-	    recv_tail = (recv_tail + 1) % UART_BUF_LEN_MAX;
-	}
-	
-	return (char)p;
-}
 
 uint8_t uart_getchar(void)
 {

@@ -26,7 +26,6 @@ typedef struct cmd_type
 }CMD_TYPE;
 
 //return TRUE or FALSE
-//extern int getline(char * lp, uint32_t n);
 extern int getline(uint8_t * lp, uint8_t n);
 extern int strtoul(char *s);
 extern char *getentry(char *pSrc, char **ppNext);

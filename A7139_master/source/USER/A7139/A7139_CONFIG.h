@@ -9,17 +9,17 @@
 //typedef   u32    Uint32;
 //typedef   u16    Uint16;
 //typedef   u8     Uint8;
-#ifndef Uint8
-#define Uint8 unsigned char
-#endif
+//#ifndef Uint8
+//#define Uint8 unsigned char
+//#endif
 
-#ifndef Uint16
-#define Uint16 unsigned short
-#endif
+//#ifndef Uint16
+//#define Uint16 unsigned short
+//#endif
 
-#ifndef Uint32
-#define Uint32 unsigned long
-#endif
+//#ifndef Uint32
+//#define Uint32 unsigned long
+//#endif
 
 /*********************************************/
 //#define CONFIG_DATA_RATE 10
@@ -38,8 +38,8 @@
 	#define XDATA
 #endif
 /********************************************/
-extern const Uint16 CODE A7139Config[];
-extern const Uint16 CODE A7139Config_PageA[];
-extern const Uint16 CODE A7139Config_PageB[];
+extern const uint16_t CODE A7139Config[];
+extern const uint16_t CODE A7139Config_PageA[];
+extern const uint16_t CODE A7139Config_PageB[];
 #endif
 /*********************************************/

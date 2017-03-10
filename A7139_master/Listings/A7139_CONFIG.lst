@@ -1,9 +1,9 @@
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 1   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE A7139_CONFIG
 OBJECT MODULE PLACED IN .\output\A7139_CONFIG.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\A7139\A7139_CONFIG.c LARGE OPTIMIZE(0,SPEED) BROWSE MODC2 IN
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\A7139\A7139_CONFIG.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 IN
                     -CDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER
                     -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\A7139_CONFIG.lst) T
                     -ABS(2) OBJECT(.\output\A7139_CONFIG.obj)
@@ -14,7 +14,7 @@ line level    source
    2          
    3          #if CONFIG_DATA_RATE == 2
               
-              const Uint16 CODE A7139Config[]=
+              const uint16_t CODE A7139Config[]=
               {
               //  0x0021,             //[0x00] System Clock register
                 0x0220,             //[0x00] System Clock register      Data Rate = 50KHZ  wxq test
@@ -36,7 +36,7 @@ line level    source
                 0x20C0              //[0x0F] Mode Control register
               };
               
-              const Uint16 CODE A7139Config_PageA[]= 
+              const uint16_t CODE A7139Config_PageA[]= 
               {
                 0x1706,             //[0x08][Page0] TX I register
                 0x0000,             //[0x08][Page1] WOR I register
@@ -56,13 +56,13 @@ line level    source
                 0x0000              //[0x08][Page15] WCAL register
               };
               
-              const Uint16 CODE A7139Config_PageB[]=
+              const uint16_t CODE A7139Config_PageB[]=
               {
                 0x037F,             //[0x09][Page0] TX II register
               //  0x8400,             //[0x09][Page1] IF I register
                   0x8200,             //[0x09][Page1] IF I register
                 0x0000,             //[0x09][Page2] IF II register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 2   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 2   
 
                 0x0000,             //[0x09][Page3] ACK register
                 0x0000              //[0x09][Page4] ART register
@@ -70,7 +70,7 @@ line level    source
               
               #elif CONFIG_DATA_RATE == 10
               
-              const Uint16 CODE A7139Config[]=    //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+              const uint16_t CODE A7139Config[]=    //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
               {
                 0x1221,   //SYSTEM CLOCK register,
                 0x0A24,   //PLL1 register,
@@ -90,7 +90,8 @@ line level    source
                 0x20C0    //MODE CONTROL register,  Use FIFO mode
               };
               
-              const Uint16 CODE A7139Config_PageA[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+              const uint16_t CODE A7139Config_PageA[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8M
+             -Hz
               {
                 0x1706,   //TX1 register,   Fdev = 37.5kHz
               
@@ -114,7 +115,8 @@ line level    source
                 0x0000    //WCAL register,
               };
               
-              const Uint16 CODE A7139Config_PageB[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+              const uint16_t CODE A7139Config_PageB[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8M
+             -Hz
               {
               //  0x037F,   //TX2 register,
                 0x0301,   //TX2 register,   wxq test
@@ -124,10 +126,10 @@ line level    source
                 0x0000    //ART register,
               };
               
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 3   
+
               //wxq add 修改之后470模块初始化成功。以上代码针对433模块？
               //const u16 CODE A7139Config[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 3   
-
               //{
               //    0x1221,   //SYSTEM CLOCK register,
               //  0x0A21,   //PLL1 register,
@@ -178,7 +180,7 @@ line level    source
               
               #elif CONFIG_DATA_RATE == 50//DR=50,IFBW=50
               
-              const Uint16 CODE A7139Config[]=
+              const uint16_t CODE A7139Config[]=
               {
                 0x0220,             //[0x00] System Clock register
                 0x0A24,             //[0x01] PLL I register
@@ -188,10 +190,10 @@ line level    source
                 0x0024,             //[0x05] PLL V register
                 0x0000,             //[0x06] PLL VI register
                 0x0001,             //[0x07] Crystal register
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 4   
+
                 0x0000,        //[0x08] PAGE A
                 0x0000,           //[0x07] PAGE B
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 4   
-
                 0x18D0,             //[0x0A] RX I register
                 0x7009,             //[0x0B] RX II register
                 0x4400,             //[0x0C] ADC register
@@ -200,7 +202,7 @@ line level    source
                 0x20C0              //[0x0F] Mode Control register
               };
               
-              const Uint16 CODE A7139Config_PageA[]= 
+              const uint16_t CODE A7139Config_PageA[]= 
               {
                 0xF606,             //[0x08][Page0] TX I register
                 0x0000,             //[0x08][Page1] WOR I register
@@ -220,7 +222,7 @@ line level    source
                 0x0000              //[0x08][Page15] WCAL register
               };
               
-              const Uint16 CODE A7139Config_PageB[]=
+              const uint16_t CODE A7139Config_PageB[]=
               {
                 0x037F,             //[0x09][Page0] TX II register
                 0x8200,             //[0x09][Page1] IF I register
@@ -231,7 +233,7 @@ line level    source
               
               #elif CONFIG_DATA_RATE == 100//DR=100,IFBW=100
  215          
- 216          const Uint16 CODE A7139Config[]=
+ 216          const uint16_t CODE A7139Config[]=
  217          {
  218            0x0021,             //[0x00] System Clock register
  219            0x0A24,             //[0x01] PLL I register
@@ -251,11 +253,11 @@ line level    source
  233            0x20C0              //[0x0F] Mode Control register
  234          };
  235          
- 236          const Uint16 CODE A7139Config_PageA[]= 
+ 236          const uint16_t CODE A7139Config_PageA[]= 
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 5   
+
  237          {
  238            0xF706,             //[0x08][Page0] TX I register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 5   
-
  239            0x0000,             //[0x08][Page1] WOR I register
  240            0x0000,             //[0x08][Page2] WOR II register
  241            0x1107,             //[0x08][Page3] RF Current register
@@ -273,7 +275,7 @@ line level    source
  253            0x0000              //[0x08][Page15] WCAL register
  254          };
  255          
- 256          const Uint16 CODE A7139Config_PageB[]=
+ 256          const uint16_t CODE A7139Config_PageB[]=
  257          {
  258            0x037F,             //[0x09][Page0] TX II register
  259            0x8400,             //[0x09][Page1] IF I register
@@ -284,7 +286,7 @@ line level    source
  264          
  265          #elif CONFIG_DATA_RATE == 150//DR=150,IFBW=150
               
-              const Uint16 CODE A7139Config[]=
+              const uint16_t CODE A7139Config[]=
               {
                 0x007B,             //[0x00] System Clock register
                 0x0A24,             //[0x01] PLL I register
@@ -304,7 +306,7 @@ line level    source
                 0x20C0              //[0x0F] Mode Control register
               };
               
-              const Uint16 CODE A7139Config_PageA[]= 
+              const uint16_t CODE A7139Config_PageA[]= 
               {
                 0xF709,             //[0x08][Page0] TX I register
                 0x0000,             //[0x08][Page1] WOR I register
@@ -316,17 +318,17 @@ line level    source
                 0x2AC0,             //[0x08][Page7] AGC Control II register
                 0x4045,             //[0x08][Page8] GPIO register
                 0xD281,             //[0x08][Page9] CKO register
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 6   
+
                 0x0004,             //[0x08][Page10] VCO Current register
                 0x0825,             //[0x08][Page11] Channel Group I register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/09/2017 18:13:18 PAGE 6   
-
                 0x0127,             //[0x08][Page12] Channel Group II register
                 0x003F,             //[0x08][Page13] FIFO register
                 0x155F,             //[0x08][Page14] CODE register
                 0x0000,             //[0x08][Page15] WCAL register
               };
               
-              const Uint16 CODE A7139Config_PageB[]=
+              const uint16_t CODE A7139Config_PageB[]=
               {
                 0x037F,             //[0x09][Page0] TX II register
                 0x8600,             //[0x09][Page1] IF I register

@@ -2,7 +2,7 @@
 
 #if CONFIG_DATA_RATE == 2
 
-const Uint16 CODE A7139Config[]=
+const uint16_t CODE A7139Config[]=
 {
 //	0x0021,             //[0x00] System Clock register
 	0x0220,             //[0x00] System Clock register      Data Rate = 50KHZ  wxq test
@@ -24,7 +24,7 @@ const Uint16 CODE A7139Config[]=
 	0x20C0              //[0x0F] Mode Control register
 };
 
-const Uint16 CODE A7139Config_PageA[]= 
+const uint16_t CODE A7139Config_PageA[]= 
 {
 	0x1706,             //[0x08][Page0] TX I register
 	0x0000,             //[0x08][Page1] WOR I register
@@ -44,7 +44,7 @@ const Uint16 CODE A7139Config_PageA[]=
 	0x0000              //[0x08][Page15] WCAL register
 };
 
-const Uint16 CODE A7139Config_PageB[]=
+const uint16_t CODE A7139Config_PageB[]=
 {
 	0x037F,             //[0x09][Page0] TX II register
 //	0x8400,             //[0x09][Page1] IF I register
@@ -56,7 +56,7 @@ const Uint16 CODE A7139Config_PageB[]=
 
 #elif CONFIG_DATA_RATE == 10
 
-const Uint16 CODE A7139Config[]=		//470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+const uint16_t CODE A7139Config[]=		//470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
 {
 	0x1221,		//SYSTEM CLOCK register,
 	0x0A24,		//PLL1 register,
@@ -76,7 +76,7 @@ const Uint16 CODE A7139Config[]=		//470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KH
 	0x20C0		//MODE CONTROL register, 	Use FIFO mode
 };
 
-const Uint16 CODE A7139Config_PageA[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+const uint16_t CODE A7139Config_PageA[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
 {
 	0x1706,		//TX1 register, 	Fdev = 37.5kHz
 
@@ -100,7 +100,7 @@ const Uint16 CODE A7139Config_PageA[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev =
 	0x0000		//WCAL register,
 };
 
-const Uint16 CODE A7139Config_PageB[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+const uint16_t CODE A7139Config_PageB[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
 {
 //	0x037F,		//TX2 register,
 	0x0301,		//TX2 register,   wxq test
@@ -162,7 +162,7 @@ const Uint16 CODE A7139Config_PageB[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev =
 
 #elif CONFIG_DATA_RATE == 50//DR=50,IFBW=50
 
-const Uint16 CODE A7139Config[]=
+const uint16_t CODE A7139Config[]=
 {
 	0x0220,             //[0x00] System Clock register
 	0x0A24,             //[0x01] PLL I register
@@ -182,7 +182,7 @@ const Uint16 CODE A7139Config[]=
 	0x20C0              //[0x0F] Mode Control register
 };
 
-const Uint16 CODE A7139Config_PageA[]= 
+const uint16_t CODE A7139Config_PageA[]= 
 {
 	0xF606,             //[0x08][Page0] TX I register
 	0x0000,             //[0x08][Page1] WOR I register
@@ -202,7 +202,7 @@ const Uint16 CODE A7139Config_PageA[]=
 	0x0000              //[0x08][Page15] WCAL register
 };
 
-const Uint16 CODE A7139Config_PageB[]=
+const uint16_t CODE A7139Config_PageB[]=
 {
   0x037F,             //[0x09][Page0] TX II register
 	0x8200,             //[0x09][Page1] IF I register
@@ -213,7 +213,7 @@ const Uint16 CODE A7139Config_PageB[]=
 
 #elif CONFIG_DATA_RATE == 100//DR=100,IFBW=100
 
-const Uint16 CODE A7139Config[]=
+const uint16_t CODE A7139Config[]=
 {
 	0x0021,             //[0x00] System Clock register
 	0x0A24,             //[0x01] PLL I register
@@ -233,7 +233,7 @@ const Uint16 CODE A7139Config[]=
 	0x20C0              //[0x0F] Mode Control register
 };
 
-const Uint16 CODE A7139Config_PageA[]= 
+const uint16_t CODE A7139Config_PageA[]= 
 {
 	0xF706,             //[0x08][Page0] TX I register
 	0x0000,             //[0x08][Page1] WOR I register
@@ -253,7 +253,7 @@ const Uint16 CODE A7139Config_PageA[]=
 	0x0000              //[0x08][Page15] WCAL register
 };
 
-const Uint16 CODE A7139Config_PageB[]=
+const uint16_t CODE A7139Config_PageB[]=
 {
 	0x037F,             //[0x09][Page0] TX II register
 	0x8400,             //[0x09][Page1] IF I register
@@ -264,7 +264,7 @@ const Uint16 CODE A7139Config_PageB[]=
 
 #elif CONFIG_DATA_RATE == 150//DR=150,IFBW=150
 
-const Uint16 CODE A7139Config[]=
+const uint16_t CODE A7139Config[]=
 {
 	0x007B,             //[0x00] System Clock register
 	0x0A24,             //[0x01] PLL I register
@@ -284,7 +284,7 @@ const Uint16 CODE A7139Config[]=
 	0x20C0              //[0x0F] Mode Control register
 };
 
-const Uint16 CODE A7139Config_PageA[]= 
+const uint16_t CODE A7139Config_PageA[]= 
 {
 	0xF709,             //[0x08][Page0] TX I register
 	0x0000,             //[0x08][Page1] WOR I register
@@ -304,7 +304,7 @@ const Uint16 CODE A7139Config_PageA[]=
 	0x0000,             //[0x08][Page15] WCAL register
 };
 
-const Uint16 CODE A7139Config_PageB[]=
+const uint16_t CODE A7139Config_PageB[]=
 {
 	0x037F,             //[0x09][Page0] TX II register
 	0x8600,             //[0x09][Page1] IF I register

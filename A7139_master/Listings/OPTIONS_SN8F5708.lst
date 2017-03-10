@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/09/2017 18:13:18 PAGE     1
+A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/10/2017 11:11:23 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
                       50     ;       <i> Enable: Turn on watchdog function only in Normal mode.
                       51     ;       <i> Disable: Turn off watchdog function.
                       52     ;
-A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/09/2017 18:13:18 PAGE     2
+A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/10/2017 11:11:23 PAGE     2
 
                       53     ;       <o.6..7> Watchdog Overflow Period <0x00=> 64 ms <0x01=> 128 ms <0x02=> 256 ms <0x03
                              => 512 ms
@@ -87,7 +87,7 @@ LOC  OBJ            LINE     SOURCE
 3FFE A5               68         DB      0xA5
 3FFF AF               69         DB      WATCHDOG_SET + CLOCKSRC_SET + SECURITY_SET
                       70         END
-A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/09/2017 18:13:18 PAGE     3
+A51 MACRO ASSEMBLER  OPTIONS_SN8F5708                                                     03/10/2017 11:11:23 PAGE     3
 
 SYMBOL TABLE LISTING
 ------ ----- -------

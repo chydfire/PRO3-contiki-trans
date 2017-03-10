@@ -14,18 +14,18 @@
 #include "cmd.h"
 #include "A7139_comm.h"
 
-rtimer_clock_t rt_now = 0;
-struct rtimer rt;
+//rtimer_clock_t rt_now = 0;
+//struct rtimer rt;
 
 
-void
-rt_callback(void)
-{
-	printf("rtimer call back\n");
-	toggle_led_red;
-	rt_now = RTIMER_NOW();
-	rtimer_set(&rt, rt_now + 65530UL, 1,(void *) rt_callback, &rt_now);
-}
+//void
+//rt_callback(void)
+//{
+//	printf("rtimer call back\n");
+//	toggle_led_red;
+//	rt_now = RTIMER_NOW();
+//	rtimer_set(&rt, rt_now + 65530UL, 1,(void *) rt_callback, &rt_now);
+//}
 int main(void)
 {
 	uint16_t id = 0;
@@ -34,7 +34,6 @@ int main(void)
 	clock_init();
 	uart_init();            //uart initial 57600
 	rtimer_init();
-	printf("test printf\n");
 	//rt_now = RTIMER_NOW();
 	//rtimer_set(&rt, rt_now + RTIMER_ARCH_SECOND*1UL, 1,(void *) rt_callback, &rt_now);
 	//a7139 initial
@@ -49,9 +48,6 @@ int main(void)
 	
 	A7139_StrobeCmd(CMD_RX); //enter RX
 	clock_delay_ms(10);
-	
-	id = A7139_ReadReg(SYSTEMCLOCK_REG);
-	printf("reg %d\n", id);
 	
 	
 	while(TRUE)

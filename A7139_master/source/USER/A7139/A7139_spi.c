@@ -62,7 +62,7 @@ void cs_high_a7139(void)
 
 
 //SCS->P2.0, SCK->P1.7, GPIO2->P2.2/INT1, GPIO1->P2.1/INT0, SDIO->P1.6, CKO->P1.5(GPIO2¾ÍÊÇIRQÒý½Å)	
-void SIO_Mode(u8 mod)
+void SIO_Mode(uint8_t mod)
 {
 	if(mod == INPUT)
 	{
@@ -79,9 +79,9 @@ void SIO_Mode(u8 mod)
 	}
 }
 
-void SPIx_WriteByte(u8 dat)
+void SPIx_WriteByte(uint8_t dat)
 {
-    u8 i;
+    uint8_t i;
     for(i=0; i<8; i++)
     {
         if(dat & 0x80)
@@ -96,9 +96,9 @@ void SPIx_WriteByte(u8 dat)
     }
 }
 
-void SPIx_WriteWord(u16 wrd)
+void SPIx_WriteWord(uint16_t wrd)
 {
-    u8 i;
+    uint8_t i;
     for(i=0; i<16; i++)
     {
         if(wrd & 0x8000)
@@ -112,9 +112,9 @@ void SPIx_WriteWord(u16 wrd)
     }
 }
 
-u8 SPIx_ReadByte(void)
+uint8_t SPIx_ReadByte(void)
 {
-	u8 i,tmp=0;
+	uint8_t i,tmp=0;
 	SIO_Mode(INPUT);
 	for(i=0; i<8; i++)
 	{
@@ -130,10 +130,10 @@ u8 SPIx_ReadByte(void)
 	return tmp;
 }
 
-u16 SPIx_ReadWord(void)
+uint16_t SPIx_ReadWord(void)
 {
-	u8  i;
-	u16 tmp=0;
+	uint8_t  i;
+	uint16_t tmp=0;
 	SIO_Mode(INPUT);	
 	for(i=0; i<16; i++)
 	{
@@ -147,35 +147,6 @@ u16 SPIx_ReadWord(void)
     }
 	SIO_Mode(OUTPUT);    
     return tmp;
-}
-//delay us*n
-void delay_us(unsigned char n)
-{
-   unsigned int i;
-    // init value
-    i = 0;
-    for (i=0; i<n; i++)
-	  {
-			_nop_();    _nop_();
-    }
-}
-//delay 1ms*n
-void delay_ms(unsigned int n)
-{
-    unsigned int i, j;
-
-    // init value
-    i = 0;
-    j = 0;
-
-    for (i=0; i<n; i++) {
-        for (j=0; j<220; j++) {
-            _nop_();    _nop_();
-            _nop_();    _nop_();
-            _nop_();    _nop_();
-            _nop_();    _nop_();
-        }
-    }
 }
 
 

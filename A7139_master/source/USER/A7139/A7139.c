@@ -1,15 +1,8 @@
 #include "A7139.h"
 #include "clock.h"
+#include "led.h"
 
-
-#define open_led1   P26 = 0
-#define close_led1  P26 = 1
-#define toggle_led1 P26 = ~P26
-#define open_led2   P27 = 0
-#define close_led2  P27 = 1
-#define toggle_led2 P27 = ~P27
-
-void A7139_WriteReg(Uint8 regAddr, Uint16 regVal)
+void A7139_WriteReg(uint8_t regAddr, uint16_t regVal)
 {
     SCS_OUT(LOW);
     regAddr |= CMD_Reg_W;
@@ -19,10 +12,10 @@ void A7139_WriteReg(Uint8 regAddr, Uint16 regVal)
     SCS_OUT(HIGH);
 }
 
-Uint16 A7139_ReadReg(Uint8 regAddr)
+uint16_t A7139_ReadReg(uint8_t regAddr)
 {
-//    Uint16 regVal;
-	  Uint16 regVal = 0;
+//    uint16_t regVal;
+	  uint16_t regVal = 0;
     SCS_OUT(LOW);
     regAddr |= CMD_Reg_R;
     SPIx_WriteByte(regAddr);
@@ -32,30 +25,30 @@ Uint16 A7139_ReadReg(Uint8 regAddr)
     return regVal;
 }
 
-void A7139_WritePageA(Uint8 address, Uint16 dataWord)
+void A7139_WritePageA(uint8_t address, uint16_t dataWord)
 {
-//    Uint16 tmp;
-	  Uint16 idata tmp;
+//    uint16_t tmp;
+	  uint16_t tmp;
     tmp = address;
     tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
     A7139_WriteReg(CRYSTAL_REG, tmp);
     A7139_WriteReg(PAGEA_REG, dataWord);
 }
 
-void A7139_WritePageB(Uint8 address, Uint16 dataWord)
+void A7139_WritePageB(uint8_t address, uint16_t dataWord)
 {
-//    Uint16 tmp;
-	  Uint16 idata tmp;
+//    uint16_t tmp;
+	  uint16_t tmp;
     tmp = address;
     tmp = ((tmp << 7) | A7139Config[CRYSTAL_REG]);
     A7139_WriteReg(CRYSTAL_REG, tmp);
     A7139_WriteReg(PAGEB_REG, dataWord);
 }
 
-Uint16 A7139_ReadPageA(Uint8 address)
+uint16_t A7139_ReadPageA(uint8_t address)
 {
-//    Uint16 tmp;
-	  Uint16 idata tmp;
+//    uint16_t tmp;
+	  uint16_t tmp;
     tmp = address;
     tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
     A7139_WriteReg(CRYSTAL_REG, tmp);
@@ -65,8 +58,8 @@ Uint16 A7139_ReadPageA(Uint8 address)
 
 void A7139_Config(void)
 {
-//	Uint8 i;
-		Uint8 idata i;
+//	uint8_t i;
+		uint8_t i;
 	for(i=0; i<8; i++)
         A7139_WriteReg(i, A7139Config[i]);
 	for(i=10; i<16; i++)
@@ -77,16 +70,16 @@ void A7139_Config(void)
         A7139_WritePageB(i, A7139Config_PageB[i]);
 }
 
-Uint8 A7139_Cal(void)
+uint8_t A7139_Cal(void)
 {
-//	Uint8  fbcf;	//IF Filter
-//	Uint8  vbcf;	//VCO Current
-//	Uint8  vccf;	//VCO Band
-//	Uint16 tmp;
-	Uint8  idata fbcf;	//IF Filter
-	Uint8  idata vbcf;	//VCO Current
-	Uint8  idata vccf;	//VCO Band
-	Uint16 idata tmp;
+//	uint8_t  fbcf;	//IF Filter
+//	uint8_t  vbcf;	//VCO Current
+//	uint8_t  vccf;	//VCO Band
+//	uint16_t tmp;
+	uint8_t  fbcf;	//IF Filter
+	uint8_t  vbcf;	//VCO Current
+	uint8_t  vccf;	//VCO Band
+	uint16_t tmp;
 	
 	tmp = A7139_ReadReg(TX2_PAGEB);			 //read chip id 0x1221
 
@@ -95,7 +88,7 @@ Uint8 A7139_Cal(void)
 //     do{
 //		tmp = A7139_ReadReg(MODE_REG);
 //		//wxq add
-//		delay_ms(100);
+//		clock_delay_ms(100);
 //     }while(tmp & 0x0002);
 
 //	   //for check(IF Filter)  
@@ -137,7 +130,7 @@ Uint8 A7139_Cal(void)
 //     do{
 //		tmp = A7139_ReadReg(MODE_REG);
 //		//wxq add
-//		delay_ms(100);
+//		clock_delay_ms(100);
 //     }while(tmp & 0x0800);
 
 //	//for check(VCO Current)
@@ -208,15 +201,15 @@ Uint8 A7139_Cal(void)
 void A7139_SetFreq(float rfFreq)
 {
 //	 float  divFreq = rfFreq / 12.800f;  
-//	 Uint8  intFreq = (Uint8)(divFreq); //integer part
+//	 uint8_t  intFreq = (uint8_t)(divFreq); //integer part
 //	 float  fltFreq = divFreq - intFreq * 1.000f; //fraction part
-//	 Uint16 fpFreg	= (Uint16)(fltFreq * 65536);  //FP register val
-//	 Uint16 orgVal;
-	 float  idata divFreq = rfFreq / 12.800f;  
-	 Uint8  idata intFreq = (Uint8)(divFreq); //integer part
-	 float  idata fltFreq = divFreq - intFreq * 1.000f; //fraction part
-	 Uint16 idata fpFreg	= (Uint16)(fltFreq * 65536);  //FP register val
-	 Uint16 idata orgVal;
+//	 uint16_t fpFreg	= (uint16_t)(fltFreq * 65536);  //FP register val
+//	 uint16_t orgVal;
+	 float  divFreq = rfFreq / 12.800f;  
+	 uint8_t  intFreq = (uint8_t)(divFreq); //integer part
+	 float  fltFreq = divFreq - intFreq * 1.000f; //fraction part
+	 uint16_t fpFreg	= (uint16_t)(fltFreq * 65536);  //FP register val
+	 uint16_t orgVal;
 	 A7139_StrobeCmd(CMD_STBY); //enter stand-by mode
 			 //AFC[15:15] = 0
 	 orgVal = A7139Config[PLL3_REG] & 0x7FFF;
@@ -239,12 +232,12 @@ void A7139_SetFreq(float rfFreq)
 	 A7139_WritePageB(IF2_PAGEB,0x0000);	
 }
 
-Uint8 A7139_RCOSC_Cal(void)
+uint8_t A7139_RCOSC_Cal(void)
 {
-//	  Uint8  retry = 0xFF;
-//	  Uint16 calbrtVal,t_retry=0xFFFF;
-	  Uint8  idata retry = 0xFF;
-	  Uint16 idata calbrtVal,t_retry=0xFFFF;
+//	  uint8_t  retry = 0xFF;
+//	  uint16_t calbrtVal,t_retry=0xFFFF;
+	  uint8_t  retry = 0xFF;
+	  uint16_t calbrtVal,t_retry=0xFFFF;
 	  		//RCOSC_E[4:4] = 1,enable internal RC Oscillator
 	  A7139_WritePageA(WOR2_PAGEA, A7139Config_PageA[WOR2_PAGEA] | 0x0010);
 	  do{
@@ -261,55 +254,55 @@ Uint8 A7139_RCOSC_Cal(void)
 	  return ERR_RCOSC_CAL;
 }
 
-void A7139_StrobeCmd(Uint8 cmd)
+void A7139_StrobeCmd(uint8_t cmd)
 {
     SCS_OUT(LOW);
     SPIx_WriteByte(cmd);
     SCS_OUT(HIGH);
 }
 
-Uint8 A7139_Init(float rfFreq)
+uint8_t A7139_Init(float rfFreq)
 {
 //	IO_Init();
 	SCS_OUT(HIGH);
 	SCK_OUT(LOW);
      A7139_StrobeCmd(CMD_RF_RST);	  //reset A7139 chip
-//	Delay_ms(10);
+//	clock_delay_ms(10);
 	clock_delay_ms(10);
 	A7139_Config();		  //config A7139 chip
-	delay_ms(10);			  //for crystal stabilized
+	clock_delay_ms(10);			  //for crystal stabilized
 	A7139_SetCID(0x3475C58C);  //set CID code
-	delay_ms(1);
+	clock_delay_ms(1);
 	A7139_SetFreq(rfFreq);	  //set Freq
-	delay_ms(10);
+	clock_delay_ms(10);
 	return A7139_Cal();		  //IF and VCO calibration
 }
 
-Uint8 A7139_SetCID(Uint32 id)
+uint8_t A7139_SetCID(uint32_t id)
 {
 	SCS_OUT(LOW);
 	SPIx_WriteByte(CMD_CID_W);
-	SPIx_WriteByte((Uint8)(id>>24));
-	SPIx_WriteByte((Uint8)(id>>16));
-	SPIx_WriteByte((Uint8)(id>>8));
-	SPIx_WriteByte((Uint8)id);
+	SPIx_WriteByte((uint8_t)(id>>24));
+	SPIx_WriteByte((uint8_t)(id>>16));
+	SPIx_WriteByte((uint8_t)(id>>8));
+	SPIx_WriteByte((uint8_t)id);
 	SCS_OUT(HIGH);
 	return 0;
 }
 
-Uint16 A7139_ReadPID(void)
+uint16_t A7139_ReadPID(void)
 {
-//	Uint16 pid;
-//	Uint16 pagAddr = TX2_PAGEB << 7;
-	Uint16 idata pid;
-	Uint16 idata pagAddr = TX2_PAGEB << 7;
+//	uint16_t pid;
+//	uint16_t pagAddr = TX2_PAGEB << 7;
+	uint16_t pid;
+	uint16_t pagAddr = TX2_PAGEB << 7;
 	pagAddr|=A7139Config[CRYSTAL_REG] & 0xF7CF;
 	A7139_WriteReg(CRYSTAL_REG, pagAddr);
 	pid = A7139_ReadReg(PAGEB_REG);
 	return pid;
 }
 
-Uint8 A7139_SetDataRate(Uint8 datRate)
+uint8_t A7139_SetDataRate(uint8_t datRate)
 {
 		//enter stand by mode
 	A7139_StrobeCmd(CMD_STBY);
@@ -382,10 +375,10 @@ Uint8 A7139_SetDataRate(Uint8 datRate)
 	return 0;
 }
 
-Uint8 A7139_SetPackLen(Uint8 len)
+uint8_t A7139_SetPackLen(uint8_t len)
 {
-//	Uint16 pagVal;
-		Uint16 idata pagVal;
+//	uint16_t pagVal;
+		uint16_t idata pagVal;
 	A7139_StrobeCmd(CMD_STBY);
 			//FEP[7:0]
 	pagVal = A7139Config_PageA[FIFO_PAGEA] & 0xFF00;
@@ -396,7 +389,7 @@ Uint8 A7139_SetPackLen(Uint8 len)
 	return 0;			
 }
 
-Uint8 A7139_SetCIDLen(Uint8 len)
+uint8_t A7139_SetCIDLen(uint8_t len)
 {
 	switch(len)
 	{
@@ -417,10 +410,10 @@ Uint8 A7139_SetCIDLen(Uint8 len)
 	return 0;
 }
 
-void A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize)
+void A7139_WriteFIFO(uint8_t *buf,uint8_t bufSize)
 {
 	A7139_StrobeCmd(CMD_TFR);	
-     clock_delay_ms(1);
+  clock_delay_ms(1);
 	SCS_OUT(LOW);
 	SPIx_WriteByte(CMD_FIFO_W);
 	while(bufSize--)
@@ -428,7 +421,7 @@ void A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize)
 	SCS_OUT(HIGH);	
 }
 
-void A7139_ReadFIFO(Uint8 *buf,Uint8 bufSize)
+void A7139_ReadFIFO(uint8_t *buf,uint8_t bufSize)
 {
 	A7139_StrobeCmd(CMD_RFR);
 	clock_delay_ms(1);
@@ -439,10 +432,10 @@ void A7139_ReadFIFO(Uint8 *buf,Uint8 bufSize)
 	SCS_OUT(HIGH);							 
 }
 
-Uint8 A7139_IsBatteryLow(Uint8 low2_x)
+uint8_t A7139_IsBatteryLow(uint8_t low2_x)
 {
-//	Uint16 pagVal;
-		Uint16 idata pagVal;
+//	uint16_t pagVal;
+		uint16_t pagVal;
 	if(low2_x<0x02 || low2_x>0x07)
 		return ERR_PARAM;
 	A7139_StrobeCmd(CMD_STBY);
@@ -453,12 +446,12 @@ Uint8 A7139_IsBatteryLow(Uint8 low2_x)
 			//read VBD[7:7]
 	return !((A7139_ReadPageA(WOR1_PAGEA) & 0x0080) >> 7);
 }
-Uint8 A7139_GetRSSI()
+uint8_t A7139_GetRSSI()
 {	
-//	Uint8  rssi;
-//	Uint16 t_retry = 0xFFFF;
-	Uint8  idata rssi;
-	Uint16 idata t_retry = 0xFFFF;
+//	uint8_t  rssi;
+//	uint16_t t_retry = 0xFFFF;
+	uint8_t  rssi;
+	uint16_t t_retry = 0xFFFF;
 		//entry RX mode
 	A7139_StrobeCmd(CMD_RX);	
 			//CDM[8:8] = 0
@@ -478,7 +471,7 @@ Uint8 A7139_GetRSSI()
 	return rssi;		
 }
 
-Uint8 A7139_WOT(void)
+uint8_t A7139_WOT(void)
 {
 	if(A7139_RCOSC_Cal()==ERR_RCOSC_CAL)
 		return ERR_RCOSC_CAL;
@@ -494,7 +487,7 @@ Uint8 A7139_WOT(void)
 	//while(1); //注意此处为死循环，代码只为演示之用，用户必须按业务实际逻辑进行需改
 	return 0;
 }
-Uint8 A7139_WOR_BySync(void)
+uint8_t A7139_WOR_BySync(void)
 {
 	A7139_StrobeCmd(CMD_STBY);
 			//GIO1=FSYNC, GIO2=WTR	
@@ -511,7 +504,7 @@ Uint8 A7139_WOR_BySync(void)
 	//while(GIO1==0);		//Stay in WOR mode until receiving preamble(preamble ok)
 	return 0;
 }
-Uint8 A7139_WOR_ByPreamble(void)
+uint8_t A7139_WOR_ByPreamble(void)
 {
 	A7139_StrobeCmd(CMD_STBY);
 	A7139_WritePageA(GIO_PAGEA, 0x004D);	//GIO1=PMDO, GIO2=WTR

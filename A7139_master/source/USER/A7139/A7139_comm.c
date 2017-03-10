@@ -5,40 +5,22 @@
 #include "led.h"
 #include "cmd.h"
 
-uint8_t idata rf_state_a7139 = RF_STATE_A7139_IDLE;
-uint8_t idata a7139_irq_status = 0;
-
-uint16_t idata crc_check_code = 0;
-uint8_t idata crc_check_code_l = 0;
-uint8_t idata crc_check_code_h = 0;
+uint8_t xdata rf_state_a7139 = RF_STATE_A7139_IDLE;
+uint8_t xdata a7139_irq_status = 0;
 
 
-uint8_t idata bufSend[]=	{"A7139"};
+
+uint8_t xdata bufSend[]=	{"A7139"};
 uint8_t xdata bufRecv[RF_RECV_BUF_LEN_MAX]={0};
 
-uint8_t idata string_test[] = {"hellow !"};
-uint8_t idata i = 0;
 
-extern uint8_t idata UartRxFlag;
-extern uint8_t idata RxBuf[RF_RECV_BUF_LEN_MAX];
+extern uint8_t xdata RxBuf[RF_RECV_BUF_LEN_MAX];
 uint8_t xdata a7139_tx[RF_RECV_BUF_LEN_MAX]={0};
 
-extern uint8_t xdata per_second_flag;
 extern xdata uint8_t rf_tx_valid_flag;
 
 xdata uint8_t rf_retx_valid_flag = 0;
 
-//定义二维数组，存放向各节点要发送的数据，注意第3字节为节点地址，节点接收到数据后需比对节点地址
- uint8_t xdata slave_cmd[10][RF_RECV_BUF_LEN_MAX] = {{0xaa,0xbb,0x01,0x00,0x00,0x3c,0x49},
-														 {0xaa,0xbb,0x02,0x00,0x00,0x3c,0xb9},
-														 {0xaa,0xbb,0x03,0x00,0x00,0xfc,0xe8},
-														 {0xaa,0xbb,0x04,0x00,0x00,0x3d,0x59},
-														 {0xaa,0xbb,0x05,0x00,0x00,0xfd,0x08},
-														 {0xaa,0xbb,0x06,0x00,0x00,0xfd,0xf8},
-														 {0xaa,0xbb,0x07,0x00,0x00,0x3d,0xa9},
-													 	 {0xaa,0xbb,0x08,0x00,0x00,0x3e,0x99},
-														 {0xaa,0xbb,0x09,0x00,0x00,0xfe,0xc8},
-														 {0xaa,0xbb,0x0a,0x00,0x00,0xfe,0x38}};
  
 														 
 //INT1 interrupt function
@@ -51,12 +33,12 @@ void INT1Interrupt(void) interrupt ISRInt1 //
 void a7139_tx_packet(uint8_t *s,uint8_t n)
 {
 		A7139_StrobeCmd(CMD_STBY);
-		delay_ms(10);
+		clock_delay_ms(10);
 	  //send a tx packet
 //		A7139_WriteFIFO(s,7);
 		A7139_WriteFIFO(s,n);
 		A7139_StrobeCmd(CMD_TX);
-		delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
+		clock_delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
 		rf_state_a7139 =  RF_STATE_A7139_TX;
 }
 uint8_t chkSumCalc( const uint8_t * pData, uint8_t len )
@@ -76,24 +58,7 @@ int a7139_master()
 {
 	  int ret = TRUE;
 	  uint8_t rx_tmp = 0;
-//	  static int i = 0;
-//	   uint8_t tmp[RF_RECV_BUF_LEN_MAX] = {0xaa,0x07,0x0a,0x00,0x01,0x02,0x03,0x04,0x05,0xE0};
-	
-		//send a tx packet per 100ms
-//		 if(per_second_flag == 1)
-//		 {
-//			 per_second_flag = 0;
-//				 a7139_tx_packet(tmp,RF_RECV_BUF_LEN_MAX);
-//	     if(i < 10)
-//			 {
-//					a7139_tx_packet(slave_cmd[i],RF_RECV_BUF_LEN_MAX);
-//					i++;
-//	  	 }
-//		 	 else
-//			 {
-//					i = 0;
-//			 }
-//		 }
+
 		 //A7139 interrupt
 		 if(a7139_irq_status == 1)
 		 {
@@ -110,7 +75,7 @@ int a7139_master()
 				
 				  if(bufRecv[bufRecv[1]+2]==chkSumCalc(&bufRecv[1],bufRecv[1]+1))  //CRC 校验,高字节在前
 					{ 
-						if(bufRecv[2] == 0x0a)//节点地址
+						if(bufRecv[2] == RF_NODE_ID)//节点地址
 						{
 							uart_send_string1(bufRecv,bufRecv[1]+3);//debug 
 							toggle_led_red;
@@ -130,7 +95,7 @@ int a7139_master()
 					//tx completed
 				  blink_led_blue;//debug			
 					A7139_StrobeCmd(CMD_RX); //enter RX 
-					delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
+					clock_delay_ms(10);//For some perform faster MCU, need time to wait at least more than 10 millisecond
 					rf_state_a7139 = RF_STATE_A7139_RX;				
 					break;
 			}

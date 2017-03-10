@@ -11,31 +11,31 @@
 
 /********************************************/
 
-Uint8  A7139_Cal(void);
+uint8_t  A7139_Cal(void);
 void   A7139_Config(void);
-void   A7139_WriteReg(Uint8 regAddr, Uint16 regVal);
-Uint16 A7139_ReadReg(Uint8 regAddr);
-Uint16 A7139_ReadPageA(Uint8 pagAddr);
-void   A7139_WritePageA(Uint8 pagAddr, Uint16 pagVal);
-void   A7139_WritePageB(Uint8 pagAddr, Uint16 pagVal);
+void   A7139_WriteReg(uint8_t regAddr, uint16_t regVal);
+uint16_t A7139_ReadReg(uint8_t regAddr);
+uint16_t A7139_ReadPageA(uint8_t pagAddr);
+void   A7139_WritePageA(uint8_t pagAddr, uint16_t pagVal);
+void   A7139_WritePageB(uint8_t pagAddr, uint16_t pagVal);
 void   A7139_SetFreq(float rfFreq);
-Uint8  A7139_RCOSC_Cal(void);
+uint8_t  A7139_RCOSC_Cal(void);
 
 
-void   A7139_StrobeCmd(Uint8 cmd);
-Uint8  A7139_Init(float rfFreq);
-Uint16 A7139_ReadPID(void);
-Uint8  A7139_SetCID(Uint32 id);
-Uint8  A7139_SetDataRate(Uint8 datRate);
-Uint8  A7139_SetPackLen(Uint8 len);
-Uint8  A7139_SetCIDLen(Uint8 len);
-Uint8  A7139_GetRSSI(void);
-Uint8  A7139_WOR_ByPreamble(void);
-Uint8  A7139_WOR_BySync(void);
-Uint8  A7139_IsBatteryLow(Uint8 low2_x);
-Uint8  A7139_SetDataRate(Uint8 datRat);
-void   A7139_WriteFIFO(Uint8 *buf,Uint8 bufSize);
-void   A7139_ReadFIFO(Uint8 *buf,Uint8 bufSize);
+void   A7139_StrobeCmd(uint8_t cmd);
+uint8_t  A7139_Init(float rfFreq);
+uint16_t A7139_ReadPID(void);
+uint8_t  A7139_SetCID(uint32_t id);
+uint8_t  A7139_SetDataRate(uint8_t datRate);
+uint8_t  A7139_SetPackLen(uint8_t len);
+uint8_t  A7139_SetCIDLen(uint8_t len);
+uint8_t  A7139_GetRSSI(void);
+uint8_t  A7139_WOR_ByPreamble(void);
+uint8_t  A7139_WOR_BySync(void);
+uint8_t  A7139_IsBatteryLow(uint8_t low2_x);
+uint8_t  A7139_SetDataRate(uint8_t datRat);
+void   A7139_WriteFIFO(uint8_t *buf,uint8_t bufSize);
+void   A7139_ReadFIFO(uint8_t *buf,uint8_t bufSize);
 
 #define SYSTEMCLOCK_REG 	     0x00
 #define PLL1_REG 			0x01
