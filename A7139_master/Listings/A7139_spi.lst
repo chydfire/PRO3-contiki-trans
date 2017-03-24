@@ -1,12 +1,12 @@
-C51 COMPILER V9.54   A7139_SPI                                                             03/10/2017 11:11:23 PAGE 1   
+C51 COMPILER V9.54   A7139_SPI                                                             03/24/2017 11:31:15 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE A7139_SPI
 OBJECT MODULE PLACED IN .\output\A7139_spi.obj
 COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\A7139\A7139_spi.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 INCDI
                     -R(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\cl
-                    -ock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\A7139_spi.lst) TABS(2)
-                    - OBJECT(.\output\A7139_spi.obj)
+                    -ock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv) DEFINE(NODE_ADDR=3) DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\A7139_spi.lst) TABS(2) OBJECT(.\output\A7139_spi.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   50   1        cs_high_a7139();
   51   1      }
   52          
-C51 COMPILER V9.54   A7139_SPI                                                             03/10/2017 11:11:23 PAGE 2   
+C51 COMPILER V9.54   A7139_SPI                                                             03/24/2017 11:31:15 PAGE 2   
 
   53          //a7139 chip select
   54          void cs_low_a7139(void)
@@ -126,7 +126,7 @@ line level    source
  112   2          }
  113   1      }
  114          
-C51 COMPILER V9.54   A7139_SPI                                                             03/10/2017 11:11:23 PAGE 3   
+C51 COMPILER V9.54   A7139_SPI                                                             03/24/2017 11:31:15 PAGE 3   
 
  115          uint8_t SPIx_ReadByte(void)
  116          {

@@ -309,9 +309,9 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>NODE_ADDR = 3</Define>
               <Undefine></Undefine>
-              <IncludePath>.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd</IncludePath>
+              <IncludePath>.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -442,6 +442,16 @@
               <FileName>rtimer-arch.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\source\USER\rtimer\rtimer-arch.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AODV</GroupName>
+          <Files>
+            <File>
+              <FileName>AODV.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\USER\aodv\AODV.c</FilePath>
             </File>
           </Files>
         </Group>

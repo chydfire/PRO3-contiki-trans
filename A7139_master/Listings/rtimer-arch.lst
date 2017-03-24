@@ -1,12 +1,12 @@
-C51 COMPILER V9.54   RTIMER_ARCH                                                           03/10/2017 11:11:23 PAGE 1   
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/24/2017 11:31:16 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE RTIMER_ARCH
 OBJECT MODULE PLACED IN .\output\rtimer-arch.obj
 COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\rtimer\rtimer-arch.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 IN
                     -CDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER
-                    -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\rtimer-arch.lst) TA
-                    -BS(2) OBJECT(.\output\rtimer-arch.obj)
+                    -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv) DEFINE(NODE_ADDR=3) DEBUG OBJECTEXTE
+                    -ND PRINT(.\Listings\rtimer-arch.lst) TABS(2) OBJECT(.\output\rtimer-arch.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   50          #include "rtimer.h"
   51          #include <SN8F5708.h>
   52          
-C51 COMPILER V9.54   RTIMER_ARCH                                                           03/10/2017 11:11:23 PAGE 2   
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/24/2017 11:31:16 PAGE 2   
 
   53          
   54          #define T2ClkFcpu (1 << 0) //T2 clock from Fcpu
@@ -126,7 +126,7 @@ line level    source
  112          /*---------------------------------------------------------------------------*/
  113          /* avoid referencing bits, we don't call code which use them */
  114          #pragma save
-C51 COMPILER V9.54   RTIMER_ARCH                                                           03/10/2017 11:11:23 PAGE 3   
+C51 COMPILER V9.54   RTIMER_ARCH                                                           03/24/2017 11:31:16 PAGE 3   
 
  115          //#if CC_CONF_OPTIMIZE_STACK_SIZE
  116          //#pragma exclude bits

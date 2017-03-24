@@ -4,6 +4,7 @@
 #include "uart.h"
 #include "led.h"
 #include "cmd.h"
+#include "AODV.h"
 
 uint8_t xdata rf_state_a7139 = RF_STATE_A7139_IDLE;
 uint8_t xdata a7139_irq_status = 0;
@@ -21,7 +22,10 @@ extern xdata uint8_t rf_tx_valid_flag;
 
 xdata uint8_t rf_retx_valid_flag = 0;
 
- 
+#define BLACK_LIST_LEN  (3)
+uint16_t xdata black_list_buf[BLACK_LIST_LEN]={1,4,5};
+extern uint8_t route_success_flag;
+extern ROUTE_LIST route_list_buf[ROUTE_LIST_BUF_LEN_MAX];
 														 
 //INT1 interrupt function
 void INT1Interrupt(void) interrupt ISRInt1 //
@@ -54,6 +58,23 @@ uint8_t chkSumCalc( const uint8_t * pData, uint8_t len )
     chksum = ~chksum + 1;
     return chksum;
 }
+
+uint8_t in_black_list(uint16_t from_addr)
+{
+	int i = 0;
+	
+	while(i<BLACK_LIST_LEN)
+	{
+		if(black_list_buf[i] == from_addr)
+			break;
+		i++;
+	}
+	if(i<BLACK_LIST_LEN)
+		return 1;
+	else
+		return 0;
+}
+
 int a7139_master()
 {
 	  int ret = TRUE;
@@ -71,25 +92,26 @@ int a7139_master()
 					break;
 				case RF_STATE_A7139_RX:
 					A7139_ReadFIFO(bufRecv,sizeof(bufRecv));
-					A7139_StrobeCmd(CMD_RX);								
+					A7139_StrobeCmd(CMD_RX);
 				
-				  if(bufRecv[bufRecv[1]+2]==chkSumCalc(&bufRecv[1],bufRecv[1]+1))  //CRC 校验,高字节在前
-					{ 
-						if(bufRecv[2] == RF_NODE_ID)//节点地址
-						{
-							uart_send_string1(bufRecv,bufRecv[1]+3);//debug 
-							toggle_led_red;
-						}
-						else
-						{
-							if(bufRecv[3])
-							{
-								bufRecv[3]--;
-								bufRecv[bufRecv[1]+2]++;
-								rf_retx_valid_flag=1;
-							}
+				  if(!in_black_list((bufRecv[2]<<8)+bufRecv[3]))
+					{
+						switch(bufRecv[0])
+						{ 
+							case AODV_RREQ_TYPE:
+								recv_rreq_process((RREQ *)bufRecv);
+								break;
+							case AODV_RREP_TYPE:
+									if(NODE_ADDR == ((bufRecv[4]<<8)+bufRecv[5]))
+										recv_rrep_process((RREP *)bufRecv);
+								break;
+							case AODV_DATA_TYPE:
+									if(NODE_ADDR == ((bufRecv[4]<<8)+bufRecv[5]))
+										recv_aodv_data_process((AODV_DATA *)bufRecv);
+								break;
 						}
 					}
+				  
 					break;
 				case RF_STATE_A7139_TX:
 					//tx completed
@@ -112,9 +134,20 @@ int a7139_master()
 		 //uart received a packet
 		 if(rf_tx_valid_flag == 1)
 		 {
-			 a7139_tx_packet(a7139_tx,a7139_tx[1]+3);
-			 
+			 //a7139_tx_packet(a7139_tx,a7139_tx[1]+3);
+			 aodv_data_tx(&a7139_tx[4], a7139_tx[1]-2, a7139_tx[2]);
 			 rf_tx_valid_flag = 0;
+		 }
+		 if(route_success_flag)
+		 {
+			 uint8_t result;
+			 AODV_DATA p;
+			 
+			 result = search_in_routelist(a7139_tx[2]);
+			 aodv_data_pkg(&a7139_tx[4], a7139_tx[1]-2, a7139_tx[2], &p);
+			 aodv_data_send(&p, route_list_buf[result].nexthop_addr);
+			 uart_send_string1(&p, p.len+AODV_DATA_BUF_LEN_BASE);
+			 route_success_flag = 0;
 		 }
 	 return ret;
 }

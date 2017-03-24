@@ -10,7 +10,8 @@
 ".\output\A7139_comm.obj",
 ".\output\clock.obj",
 ".\output\rtimer.obj",
-".\output\rtimer-arch.obj" 
+".\output\rtimer-arch.obj",
+".\output\AODV.obj" 
 TO ".\output\gpio" 
 PRINT(".\Listings\gpio.m51") RAMSIZE(256) 
 CODE( 0X0000-0X3FF5 )

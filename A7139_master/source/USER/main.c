@@ -40,6 +40,7 @@ int main(void)
 	clock_delay_ms(10);
 	init_spi_a7139();
 	clock_delay_ms(10);
+	aodv_init();
 	
 	if(A7139_Init(475.001f) != 0)
 	{
@@ -53,7 +54,7 @@ int main(void)
 	while(TRUE)
 	{
 		  a7139_master();
-		  clock_delay_ms(10);
+		  //clock_delay_ms(10);
 		  cmd_master();
 	}
 	

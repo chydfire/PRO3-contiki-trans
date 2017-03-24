@@ -1,12 +1,12 @@
-C51 COMPILER V9.54   MAIN                                                                  03/10/2017 11:11:23 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  03/24/2017 11:31:15 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\output\main.obj
 COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\main.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 INCDIR(.\source\
                     -USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\sourc
-                    -e\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\output
-                    -\main.obj)
+                    -e\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv) DEFINE(NODE_ADDR=3) DEBUG OBJECTEXTEND PRINT(.\Lis
+                    -tings\main.lst) TABS(2) OBJECT(.\output\main.obj)
 
 line level    source
 
@@ -52,32 +52,34 @@ line level    source
   40   1        clock_delay_ms(10);
   41   1        init_spi_a7139();
   42   1        clock_delay_ms(10);
-  43   1        
-  44   1        if(A7139_Init(475.001f) != 0)
-  45   1        {
-  46   2          printf("a7139 initial fail!\n");
-  47   2        }
-  48   1        
-  49   1        A7139_StrobeCmd(CMD_RX); //enter RX
-  50   1        clock_delay_ms(10);
-  51   1        
-  52   1        
-C51 COMPILER V9.54   MAIN                                                                  03/10/2017 11:11:23 PAGE 2   
+  43   1        aodv_init();
+*** WARNING C206 IN LINE 43 OF source\USER\main.c: 'aodv_init': missing function-prototype
+  44   1        
+  45   1        if(A7139_Init(475.001f) != 0)
+  46   1        {
+  47   2          printf("a7139 initial fail!\n");
+  48   2        }
+  49   1        
+  50   1        A7139_StrobeCmd(CMD_RX); //enter RX
+  51   1        clock_delay_ms(10);
+C51 COMPILER V9.54   MAIN                                                                  03/24/2017 11:31:15 PAGE 2   
 
-  53   1        while(TRUE)
-  54   1        {
-  55   2            a7139_master();
-  56   2            clock_delay_ms(10);
-  57   2            cmd_master();
-  58   2        }
-  59   1        
-  60   1        return 0;
-  61   1      }
-*** WARNING C294 IN LINE 60 OF source\USER\main.c: unreachable code
+  52   1        
+  53   1        
+  54   1        while(TRUE)
+  55   1        {
+  56   2            a7139_master();
+  57   2            //clock_delay_ms(10);
+  58   2            cmd_master();
+  59   2        }
+  60   1        
+  61   1        return 0;
+  62   1      }
+*** WARNING C294 IN LINE 61 OF source\USER\main.c: unreachable code
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     81    ----
+   CODE SIZE        =     79    ----
    CONSTANT SIZE    =     21    ----
    XDATA SIZE       =   ----       2
    PDATA SIZE       =   ----    ----
@@ -87,4 +89,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

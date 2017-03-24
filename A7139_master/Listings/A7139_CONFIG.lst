@@ -1,12 +1,12 @@
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 1   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE A7139_CONFIG
 OBJECT MODULE PLACED IN .\output\A7139_CONFIG.obj
 COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\A7139\A7139_CONFIG.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 IN
                     -CDIR(.\source\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER
-                    -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd) DEBUG OBJECTEXTEND PRINT(.\Listings\A7139_CONFIG.lst) T
-                    -ABS(2) OBJECT(.\output\A7139_CONFIG.obj)
+                    -\clock;.\source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv) DEFINE(NODE_ADDR=3) DEBUG OBJECTEXTE
+                    -ND PRINT(.\Listings\A7139_CONFIG.lst) TABS(2) OBJECT(.\output\A7139_CONFIG.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
               //  0x8400,             //[0x09][Page1] IF I register
                   0x8200,             //[0x09][Page1] IF I register
                 0x0000,             //[0x09][Page2] IF II register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 2   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 2   
 
                 0x0000,             //[0x09][Page3] ACK register
                 0x0000              //[0x09][Page4] ART register
@@ -126,7 +126,7 @@ line level    source
                 0x0000    //ART register,
               };
               
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 3   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 3   
 
               //wxq add 修改之后470模块初始化成功。以上代码针对433模块？
               //const u16 CODE A7139Config[]=   //470MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
@@ -190,7 +190,7 @@ line level    source
                 0x0024,             //[0x05] PLL V register
                 0x0000,             //[0x06] PLL VI register
                 0x0001,             //[0x07] Crystal register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 4   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 4   
 
                 0x0000,        //[0x08] PAGE A
                 0x0000,           //[0x07] PAGE B
@@ -254,7 +254,7 @@ line level    source
  234          };
  235          
  236          const uint16_t CODE A7139Config_PageA[]= 
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 5   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 5   
 
  237          {
  238            0xF706,             //[0x08][Page0] TX I register
@@ -318,7 +318,7 @@ line level    source
                 0x2AC0,             //[0x08][Page7] AGC Control II register
                 0x4045,             //[0x08][Page8] GPIO register
                 0xD281,             //[0x08][Page9] CKO register
-C51 COMPILER V9.54   A7139_CONFIG                                                          03/10/2017 11:11:23 PAGE 6   
+C51 COMPILER V9.54   A7139_CONFIG                                                          03/24/2017 11:31:15 PAGE 6   
 
                 0x0004,             //[0x08][Page10] VCO Current register
                 0x0825,             //[0x08][Page11] Channel Group I register

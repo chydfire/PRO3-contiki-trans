@@ -17,6 +17,7 @@ SET CPU_XTAL=0x01E84800
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\clock.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\rtimer.__i"
 "C:\Keil_v5\C51\BIN\C51.EXE" @".\output\RTIMER~1.__I"
+"C:\Keil_v5\C51\BIN\C51.EXE" @".\output\AODV.__i"
 "C:\Keil_v5\C51\BIN\BL51.EXE" @".\output\gpio.lnp"
 "C:\Keil_v5\C51\BIN\OH51.EXE" ".\output\gpio" 
 HexConvert.exe SN8F5708 "D:\Contiki Transport\SN8F5708PRO1\TX\A7139_master\output\gpio.HEX"

@@ -1,0 +1,397 @@
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE AODV
+OBJECT MODULE PLACED IN .\output\AODV.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\USER\aodv\AODV.c LARGE OPTIMIZE(8,SPEED) BROWSE MODC2 INCDIR(.\so
+                    -urce\USER\A7139;.\source\USER\timer;.\source\USER\uart;.\source\USER\led;C:\Keil_v5\C51\INC\SONIX;.\source\USER\clock;.\
+                    -source\USER\inc;.\source\USER\rtimer;.\source\USER\cmd;.\source\USER\aodv) DEFINE(NODE_ADDR=3) DEBUG OBJECTEXTEND PRINT(
+                    -.\Listings\AODV.lst) TABS(2) OBJECT(.\output\AODV.obj)
+
+line level    source
+
+   1          /*****************************************************************************
+   2           *
+   3           * Copyright (C) 2017 TaDunTech
+   4           *
+   5           * Authors: Cheny
+   6           *          
+   7           *
+   8           *****************************************************************************/
+   9          #include "AODV.h"
+  10          #include "A7139_comm.h"
+  11          #include "clock.h"
+  12          #include "stdio.h"
+  13          #include "uart.h"
+  14          #include "led.h"
+  15          
+  16          RREQ xdata rreq_msg_buf;
+  17          RREQ_LIST xdata rreq_list_buf[RREQ_LIST_BUF_LEN_MAX];
+  18          RREP xdata rrep_msg_buf;
+  19          ROUTE_LIST xdata route_list_buf[ROUTE_LIST_BUF_LEN_MAX];
+  20          
+  21          uint8_t xdata rreq_list_length = 0;
+  22          uint8_t xdata route_list_length = 0;
+  23          uint8_t xdata route_success_flag = 0;
+  24          
+  25          uint8_t rreq_init(RREQ *rreq_msg)
+  26          {
+  27   1          rreq_msg-> type = AODV_RREQ_TYPE;
+  28   1          rreq_msg-> hopcnt = 0;
+  29   1          rreq_msg-> from_addr = NODE_ADDR;
+  30   1          rreq_msg-> rreq_id = 0;
+  31   1          rreq_msg-> dest_addr = 0;
+  32   1          rreq_msg-> dest_seqno = 0;
+  33   1          rreq_msg-> src_addr = NODE_ADDR;
+  34   1          rreq_msg-> src_seqno = 0;
+  35   1      
+  36   1          return 0;
+  37   1      }
+  38          
+  39          uint8_t rreq_create(RREQ *rreq_msg, uint16_t dest_addr)
+  40          {   
+  41   1          rreq_msg-> rreq_id = rreq_msg-> rreq_id + 1;
+  42   1          rreq_msg-> dest_addr = dest_addr;
+  43   1          rreq_msg-> dest_seqno = 0;
+  44   1          rreq_msg-> src_seqno = rreq_msg-> src_seqno + 1;
+  45   1        
+  46   1          return 0;
+  47   1      }
+  48          
+  49          uint8_t rreq_send(RREQ *rreq_msg)
+  50          {
+  51   1        /*broadcast(&rreq_msg)*/
+  52   1        a7139_tx_packet((uint8_t *)rreq_msg, RREQ_LEN);
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 2   
+
+  53   1        //a7139_tx_packet(test_rreq_buf, RREQ_LEN);
+  54   1        return 0;
+  55   1      }
+  56          
+  57          uint8_t rreq_retrans(RREQ *rreq_msg)
+  58          {
+  59   1        rreq_msg-> hopcnt += 1;
+  60   1        rreq_msg-> from_addr = NODE_ADDR;
+  61   1        rreq_send(rreq_msg);
+  62   1      
+  63   1        return 0;
+  64   1      }
+  65          
+  66          uint8_t update_rreq_list(RREQ *rreq_msg)
+  67          {
+  68   1        int i = 0;
+  69   1      
+  70   1        while(i < rreq_list_length)
+  71   1        {
+  72   2          if((rreq_list_buf[i].src_addr) == (rreq_msg-> src_addr))
+  73   2            break;
+  74   2          i++;
+  75   2        }
+  76   1        if(i < rreq_list_length)
+  77   1        {
+  78   2          if((rreq_msg-> rreq_id) > (rreq_list_buf[i].rreq_id))
+  79   2          {
+  80   3            rreq_list_buf[i].rreq_id = rreq_msg-> rreq_id;
+  81   3            return 1;
+  82   3          }
+  83   2          else
+  84   2            return 0;
+  85   2        }
+  86   1        else
+  87   1        {
+  88   2          rreq_list_buf[i].src_addr = rreq_msg-> src_addr;
+  89   2          rreq_list_buf[i].rreq_id = rreq_msg-> rreq_id;
+  90   2          rreq_list_length++;
+  91   2          return 1;
+  92   2        }
+  93   1      }
+  94          
+  95          uint8_t rrep_init(RREP *rrep_msg)
+  96          {
+  97   1          rrep_msg-> type = AODV_RREP_TYPE;
+  98   1          rrep_msg-> from_addr = NODE_ADDR;
+  99   1          rrep_msg-> dest_addr = NODE_ADDR;
+ 100   1          rrep_msg-> dest_seqno = 0;
+ 101   1      
+ 102   1          return 0;
+ 103   1      }
+ 104          
+ 105          uint8_t rrep_create(RREQ *rreq_msg, RREP *rrep_msg)
+ 106          { 
+ 107   1          rrep_msg-> hopcnt = rreq_msg-> hopcnt;
+ 108   1          rrep_msg-> dest_seqno += 1;
+ 109   1          rrep_msg-> src_addr = rreq_msg->src_addr;
+ 110   1      
+ 111   1          return 0;
+ 112   1      }
+ 113          
+ 114          uint8_t rrep_send(RREP *rrep_msg, uint16_t to_addr)
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 3   
+
+ 115          {
+ 116   1        rrep_msg-> from_addr = NODE_ADDR;
+ 117   1        rrep_msg-> to_addr = to_addr;
+ 118   1        a7139_tx_packet((uint8_t *)rrep_msg, RREP_LEN);
+ 119   1        
+ 120   1        return 0;
+ 121   1      }
+ 122          
+ 123          uint8_t search_in_routelist(uint16_t dest_addr)
+ 124          {
+ 125   1        int i = 0;
+ 126   1      
+ 127   1        while(i < route_list_length)
+ 128   1        {
+ 129   2          if(route_list_buf[i].dest_addr == dest_addr)
+ 130   2            break;
+ 131   2          i++;
+ 132   2        }
+ 133   1      
+ 134   1        return i;
+ 135   1      }
+ 136          
+ 137          uint8_t update_prehop_route_list(RREQ *rreq_msg)
+ 138          {
+ 139   1        int result;
+ 140   1      
+ 141   1        result = search_in_routelist(rreq_msg-> dest_addr);
+ 142   1        route_list_buf[result].prehop_addr = rreq_msg-> from_addr;
+ 143   1        if(result < route_list_length)
+ 144   1        {
+ 145   2          return result;
+ 146   2        }
+ 147   1        else
+ 148   1        {
+ 149   2          route_list_buf[result].src_addr = rreq_msg-> src_addr;
+ 150   2          route_list_buf[result].dest_addr = rreq_msg-> dest_addr;
+ 151   2          route_list_length++;
+ 152   2          return route_list_length;
+ 153   2        }
+ 154   1      }
+ 155          
+ 156          uint8_t update_nexthop_route_list(RREP *rrep_msg)
+ 157          {
+ 158   1        int result;
+ 159   1      
+ 160   1        result = search_in_routelist(rrep_msg-> dest_addr);
+ 161   1        route_list_buf[result].nexthop_addr = rrep_msg-> from_addr;
+ 162   1        if(result < route_list_length)
+ 163   1        {
+ 164   2          return result;
+ 165   2        }
+ 166   1        else
+ 167   1        {
+ 168   2          route_list_buf[result].src_addr = rrep_msg-> src_addr;
+ 169   2          route_list_buf[result].dest_addr = rrep_msg-> dest_addr;
+ 170   2          route_list_length++;
+ 171   2          return route_list_length;
+ 172   2        }
+ 173   1      
+ 174   1        return result;
+ 175   1      }
+ 176          
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 4   
+
+ 177          uint8_t recv_rreq_process(RREQ *rreq_msg)
+ 178          {
+ 179   1        int result;
+ 180   1      
+ 181   1        if(NODE_ADDR != rreq_msg-> src_addr)                                
+ 182   1        {
+ 183   2          if(update_rreq_list(rreq_msg))
+ 184   2          {
+ 185   3            result = update_prehop_route_list(rreq_msg);  
+ 186   3            if(NODE_ADDR == rreq_msg-> dest_addr)
+ 187   3            {
+ 188   4              rrep_create(rreq_msg, &rrep_msg_buf);
+ 189   4              rrep_send(&rrep_msg_buf, route_list_buf[result].prehop_addr);
+ 190   4            }
+ 191   3            else
+ 192   3            {
+ 193   4              rreq_retrans(rreq_msg);
+ 194   4            }
+ 195   3          }
+ 196   2        }
+ 197   1        
+ 198   1        return 0;
+ 199   1      }
+ 200          
+ 201          uint8_t recv_rrep_process(RREP *rrep_msg)
+ 202          {
+ 203   1        uint8_t result;
+ 204   1      
+ 205   1        result = update_nexthop_route_list(rrep_msg);
+ 206   1        if(NODE_ADDR == rrep_msg-> src_addr)
+ 207   1          route_success_flag = 1;
+ 208   1        else
+ 209   1          rrep_send(rrep_msg, route_list_buf[result].prehop_addr);
+ 210   1      
+ 211   1        return 0;
+ 212   1      }
+ 213          
+ 214          uint8_t aodv_init(void)
+ 215          {
+ 216   1        rreq_init(&rreq_msg_buf);
+ 217   1        rrep_init(&rrep_msg_buf);
+ 218   1        
+ 219   1        return 0;
+ 220   1      }
+ 221          
+ 222          uint8_t aodv_data_send(AODV_DATA *aodv_data, uint16_t to_addr)
+ 223          {
+ 224   1        aodv_data-> from_addr = NODE_ADDR;
+ 225   1        aodv_data-> to_addr = to_addr;
+ 226   1        a7139_tx_packet((uint8_t *)aodv_data, aodv_data-> len + AODV_DATA_BUF_LEN_BASE);
+ 227   1        
+ 228   1        return 0;
+ 229   1      }
+ 230          
+ 231          uint8_t aodv_data_pkg(uint8_t *dat, uint8_t len, uint16_t dest_addr, AODV_DATA *p)
+ 232          {
+ 233   1        int i;
+ 234   1        
+ 235   1        p-> type = AODV_DATA_TYPE;
+ 236   1        p-> from_addr = NODE_ADDR;
+ 237   1        p-> src_addr = NODE_ADDR;
+ 238   1        p-> dest_addr = dest_addr;
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 5   
+
+ 239   1        p-> len = len;
+ 240   1        for(i=0;i<len;i++)
+ 241   1        {
+ 242   2          p-> aodv_data_buf[i] = *(dat + i);
+ 243   2        }
+ 244   1        
+ 245   1        return 0;
+ 246   1      }
+ 247          
+ 248          uint8_t aodv_data_tx(uint8_t *dat, uint8_t len, uint16_t dest_addr)
+ 249          {
+ 250   1        uint8_t result;
+ 251   1        uint8_t rrep_overtime_flag = 0;
+ 252   1        uint16_t time_rreq_send;
+ 253   1        AODV_DATA p;
+ 254   1      
+ 255   1        result = search_in_routelist(dest_addr);
+ 256   1          if(result < route_list_length)
+ 257   1          {
+ 258   2            /*broadcast(&data, NODE_ADDR, *(route_list_buf + result).nexthop, NODE_ADDR, dest_addr);*/
+ 259   2            aodv_data_pkg(dat, len, dest_addr, &p);
+ 260   2            aodv_data_send(&p, route_list_buf[result].nexthop_addr);
+ 261   2            
+ 262   2            return TRUE;
+ 263   2          }
+ 264   1          else
+ 265   1          {
+ 266   2            rreq_create(&rreq_msg_buf, dest_addr);
+ 267   2            rreq_send(&rreq_msg_buf);
+ 268   2            uart_send_string1(&rreq_msg_buf , RREQ_LEN);
+*** WARNING C182 IN LINE 268 OF source\USER\aodv\AODV.c: pointer to different objects
+ 269   2          }
+ 270   1      
+ 271   1      
+ 272   1      //    time_rreq_send = clock_time();
+ 273   1      //    while(!route_success_flag)
+ 274   1      //    {
+ 275   1      //      if(clock_time() == (time_rreq_send + 3*CLOCK_CONF_SECOND))
+ 276   1      //      {
+ 277   1      //        rrep_overtime_flag = 1;
+ 278   1      //        break;
+ 279   1      //      }
+ 280   1      //    }
+ 281   1      //    if(rrep_overtime_flag)
+ 282   1      //    {
+ 283   1      //      printf("Tx failed as rrep overtime\n");
+ 284   1      //      return FALSE;
+ 285   1      //    }
+ 286   1      //    else
+ 287   1      //    {
+ 288   1      //      /*broadcast(&data, NODE_ADDR, *(route_list_buf + result).nexthop, NODE_ADDR, dest_addr);*/
+ 289   1      //      aodv_data_pkg(dat, len, dest_addr, &p);
+ 290   1      //      aodv_data_send(&p, route_list_buf[result].nexthop_addr);
+ 291   1      //      return TRUE;
+ 292   1      //    }   
+ 293   1      }
+*** WARNING C280 IN LINE 252 OF source\USER\aodv\AODV.c: 'time_rreq_send': unreferenced local variable
+ 294          
+ 295          uint8_t recv_aodv_data_process(AODV_DATA *aodv_data)
+ 296          {
+ 297   1        uint8_t result;
+ 298   1      
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 6   
+
+ 299   1        if(NODE_ADDR == aodv_data-> dest_addr)
+ 300   1        {
+ 301   2          toggle_led_red;
+ 302   2          printf("Recv from NODE-%s:\n", aodv_data-> src_addr);
+ 303   2          uart_send_string1(aodv_data-> aodv_data_buf, aodv_data-> len);
+ 304   2        }
+ 305   1        else
+ 306   1        {
+ 307   2            aodv_data_tx(aodv_data-> aodv_data_buf, aodv_data-> len, aodv_data-> dest_addr);  
+ 308   2        }
+ 309   1        
+ 310   1        return 0;
+ 311   1      }
+*** WARNING C280 IN LINE 297 OF source\USER\aodv\AODV.c: 'result': unreferenced local variable
+ 312          
+ 313          
+ 314          //uint8_t msg_type_to_rreq(uint8_t *msg, RREQ *p)
+ 315          //{
+ 316          //    p-> type = *msg;
+ 317          //    p-> hopcnt = *(msg+1);
+ 318          //    p-> from_addr = *(msg+2)<<8 + *(msg+3);
+ 319          //    p-> rreq_id = *(msg+4)<<8 + *(msg+5);
+ 320          //    p-> dest_addr = *(msg+6)<<8 + *(msg+7);
+ 321          //    p-> dest_seqno = *(msg+8)<<8 + *(msg+9);
+ 322          //    p-> src_addr = *(msg+10)<<8 + *(msg+11);
+ 323          //    p-> src_seqno = *(msg+12)<<8 + *(msg+13);
+ 324          //  
+ 325          //  return 0;
+ 326          //}
+ 327          //uint8_t msg_type_to_rrep(uint8_t *msg, RREP *p)
+ 328          //{
+ 329          //    p-> type = *msg;
+ 330          //    p-> hopcnt = *(msg+1);
+ 331          //    p-> from_addr = *(msg+2)<<8 + *(msg+3);
+ 332          //    p-> to_addr = *(msg+4)<<8 + *(msg+5);
+ 333          //    p-> dest_addr = *(msg+6)<<8 + *(msg+7);
+ 334          //    p-> dest_seqno = *(msg+8)<<8 + *(msg+9);
+ 335          //    p-> src_addr = *(msg+10)<<8 + *(msg+11);
+ 336          //  
+ 337          //  return 0;
+ 338          //}
+ 339          //uint8_t msg_type_to_aodv_data_type(uint8_t *msg, AODV_DATA *p)
+ 340          //{
+ 341          //    int i;  
+ 342          //  
+ 343          //    p-> type = *msg;
+ 344          //    p-> len = *(msg+1);
+ 345          //    p-> from_addr = *(msg+2)<<8 + *(msg+3);
+ 346          //    p-> to_addr = *(msg+4)<<8 + *(msg+5);
+ 347          //    p-> src_addr = *(msg+6)<<8 + *(msg+7);
+ 348          //    p-> dest_addr = *(msg+8)<<8 + *(msg+9);
+ 349          //    for(i=0;i<p-> len;i++)
+ 350          //    {
+ 351          //      p-> aodv_data_buf[i] = *(msg+9+i);
+ 352          //    }
+ 353          //    
+ 354          //    return 0;
+ 355          //}
+*** WARNING C291 IN LINE 293 OF source\USER\aodv\AODV.c: not every exit path returns a value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.54   AODV                                                                  03/24/2017 11:31:16 PAGE 7   
+
+   CODE SIZE        =   1765    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =    169      67
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  4 WARNING(S),  0 ERROR(S)
